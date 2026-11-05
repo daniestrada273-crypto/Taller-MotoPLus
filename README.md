@@ -18,3 +18,43 @@ MotorPlus es una aplicación web diseñada para digitalizar y optimizar la admin
 
 
 
+\## Funcionalidades del Sistema
+
+
+
+MotorPlus incluye los siguientes módulos y capacidades para la administración integral del taller:
+
+
+
+\### Gestión de Clientes
+
+\- Registro y edición: Alta de clientes con datos de contacto (nombre, teléfono, correo).
+
+\- Historial de servicios: Consulta detallada de todos los servicios realizados y vehículos asociados a cada cliente.
+
+
+
+\### Control de Vehículos
+
+\- Expediente vehicular: Registro de automóviles asociados a un cliente específico (marca, modelo, año y placas).
+
+\- Búsqueda rápida: Identificación de vehículos mediante número de placa o propietario.
+
+
+
+\### Órdenes de Servicio
+
+\- Creación de órdenes: Registro de la recepción del vehículo con la descripción del problema reportado.
+
+\- Seguimiento de estados: Control del flujo de trabajo (Pendiente, En Proceso, Diagnosticado, Finalizado, Entregado).
+
+\- Asignación de diagnóstico: Registro de las fallas encontradas y el trabajo técnico a realizar.
+
+
+
+\### Base de Datos Relacional (PostgreSQL)
+
+\- Integridad de datos: Relaciones estructuradas entre clientes, vehículos y órdenes de trabajo mediante llaves foráneas.
+
+\- Persistencia y respaldo: Esquema optimizado para la gestión eficiente de la información del taller.
+
