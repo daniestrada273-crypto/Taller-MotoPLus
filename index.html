@@ -1,477 +1,889 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TallerMP · CU-01 Registrar Orden de Servicio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MotorPlus · Sistema de Gestión de Servicios Automotrices</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
 
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        body.wireframe-mode {
-            font-family: 'JetBrains Mono', monospace !important;
-            background-color: #f4f4f5 !important;
-            color: #18181b !important;
-        }
-        body.wireframe-mode * { box-shadow: none !important; text-shadow: none !important; }
-        body.wireframe-mode .wf-card { background-color: #ffffff !important; border: 2px dashed #71717a !important; border-radius: 0 !important; }
-        body.wireframe-mode .wf-input { background-color: #fafafa !important; border: 1px solid #27272a !important; border-radius: 0 !important; color: #000 !important; }
-        body.wireframe-mode .wf-btn-primary { background-color: #27272a !important; color: #ffffff !important; border: 2px solid #000 !important; border-radius: 0 !important; }
-        body.wireframe-mode header, body.wireframe-mode footer { background-color: #e4e4e7 !important; border-color: #71717a !important; color: #000000 !important; }
+    /* MODO WIREFRAME (Baja fidelidad) */
+    body.wireframe-mode {
+      font-family: 'JetBrains Mono', monospace !important;
+      background-color: #f4f4f5 !important;
+      color: #000000 !important;
+    }
+    body.wireframe-mode * {
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    body.wireframe-mode .wf-card {
+      background-color: #ffffff !important;
+      border: 2px dashed #52525b !important;
+      border-radius: 0 !important;
+    }
+    body.wireframe-mode .wf-input {
+      background-color: #fafafa !important;
+      border: 1px solid #000000 !important;
+      border-radius: 0 !important;
+      color: #000 !important;
+    }
+    body.wireframe-mode .wf-btn-action {
+      background-color: #18181b !important;
+      color: #ffffff !important;
+      border: 2px solid #000000 !important;
+      border-radius: 0 !important;
+    }
+    body.wireframe-mode header, body.wireframe-mode .wf-header-panel {
+      background-color: #e4e4e7 !important;
+      border-color: #71717a !important;
+      color: #000000 !important;
+    }
 
-        .damage-pin {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-        }
-        .damage-pin:hover { transform: translate(-50%, -50%) scale(1.25); }
-        .pin-golpe { background-color: #ef4444; border: 2px solid #ffffff; }
-        .pin-rayon { background-color: #f59e0b; border: 2px solid #ffffff; }
-        .pin-abolladura { background-color: #8b5cf6; border: 2px solid #ffffff; }
-    </style>
+    /* Pines de inspección de carrocería */
+    .damage-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      transition: transform 0.15s;
+    }
+    .damage-pin:hover { transform: translate(-50%, -50%) scale(1.3); }
+    .pin-golpe { background-color: #ea580c; border: 2px solid #ffffff; }
+    .pin-rayon { background-color: #f59e0b; border: 2px solid #ffffff; }
+    .pin-abolladura { background-color: #0284c7; border: 2px solid #ffffff; }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-zinc-100 text-zinc-800 min-h-screen flex flex-col transition-colors duration-150">
 
-    <!-- NAVEGACIÓN -->
-    <header class="bg-slate-900 text-white px-6 py-3.5 border-b border-slate-800 sticky top-0 z-30 shadow-md">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 text-white p-2 rounded-lg font-bold tracking-wider text-sm flex items-center justify-center shadow">
-                    TMP
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-tight">Sistema TallerMP</h1>
-                    <p class="text-xs text-slate-400">CU-01 Registrar orden de servicio · Recepción vehicular</p>
-                </div>
-            </div>
+  <!-- ========================================== -->
+  <!-- 1. PANTALLA DE INICIO DE SESIÓN (LOGIN)   -->
+  <!-- ========================================== -->
+  <section id="pantallaLogin" class="min-h-screen bg-black flex flex-col justify-center items-center p-6 relative overflow-hidden">
+    <!-- Acentos decorativos de fondo -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-700/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center bg-slate-800 p-1 rounded-lg border border-slate-700">
-                    <button id="btnAltaFidelidad" onclick="toggleModo(false)" class="px-3 py-1 text-xs font-semibold rounded-md bg-blue-600 text-white transition shadow">Prototipo (Alta Fidelidad)</button>
-                    <button id="btnBajaFidelidad" onclick="toggleModo(true)" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-300 hover:text-white transition">Wireframe (Baja Fidelidad)</button>
-                </div>
-                <div class="hidden sm:flex items-center space-x-2 pl-3 border-l border-slate-700 text-xs text-slate-300">
-                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                    <span>Recepcionista: <strong>Daniela Vargas</strong></span>
-                </div>
-            </div>
+    <div class="max-w-md w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-8 shadow-2xl relative z-10 space-y-6">
+      
+      <!-- Marca -->
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center bg-orange-600 text-white font-black text-2xl w-14 h-14 rounded-xl shadow-lg shadow-orange-600/30">
+          MP
         </div>
+        <h1 class="text-2xl font-black text-white tracking-tight">Motor<span class="text-orange-500">Plus</span></h1>
+        <p class="text-xs text-zinc-400">Sistema de Control Operativo · Iniciar Sesión por Rol</p>
+      </div>
+
+      <!-- Selector de Rol -->
+      <div class="space-y-2">
+        <label class="block text-xs font-semibold text-zinc-300">Seleccionar Perfil de Acceso:</label>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <button type="button" onclick="seleccionarRol('Recepcionista', 'Daniela Vargas', 'recepcion@motorplus.com')" id="rolBtn_Recepcionista" class="rol-btn border border-orange-500 bg-orange-500/10 text-orange-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition">
+            <span class="text-base">📋</span>
+            <span>Recepción</span>
+          </button>
+          <button type="button" onclick="seleccionarRol('Mecanico', 'Roberto Sánchez', 'mecanico@motorplus.com')" id="rolBtn_Mecanico" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
+            <span class="text-base">🔧</span>
+            <span>Mecánico</span>
+          </button>
+          <button type="button" onclick="seleccionarRol('Administrador', 'Ing. Vargas Dueño', 'admin@motorplus.com')" id="rolBtn_Administrador" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
+            <span class="text-base">🛡️</span>
+            <span>Admin</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario Login -->
+      <form onsubmit="iniciarSesion(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-zinc-300 mb-1">Correo Institucional</label>
+          <input type="email" id="loginEmail" value="recepcion@motorplus.com" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-3 rounded-lg focus:outline-none focus:border-blue-500 font-mono">
+        </div>
+        <div>
+          <label class="block font-medium text-zinc-300 mb-1">Contraseña de Acceso</label>
+          <input type="password" id="loginPass" value="••••••••" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-3 rounded-lg focus:outline-none focus:border-blue-500">
+        </div>
+
+        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-lg text-sm transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
+          <span>Ingresar al Sistema</span>
+          <span>→</span>
+        </button>
+      </form>
+
+      <div class="border-t border-zinc-800/80 pt-4 text-center">
+        <span class="text-[11px] text-zinc-500">Taller Mecánico Especializado MotorPlus</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 2. APLICACIÓN PRINCIPAL (POST-LOGIN)       -->
+  <!-- ========================================== -->
+  <div id="pantallaApp" class="hidden flex-1 flex flex-col">
+
+    <!-- BARRA SUPERIOR (HEADER) EN NEGRO + AZUL + NARANJA -->
+    <header class="wf-header-panel bg-black border-b border-zinc-800 text-white px-6 py-3 sticky top-0 z-40 shadow-xl">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        
+        <!-- Logo y Sistema -->
+        <div class="flex items-center space-x-3">
+          <div class="bg-orange-600 text-white font-extrabold text-sm px-2.5 py-1.5 rounded-lg tracking-wider">
+            MP
+          </div>
+          <div>
+            <h1 class="font-extrabold text-lg leading-tight tracking-tight">Motor<span class="text-orange-500">Plus</span></h1>
+            <p class="text-[11px] text-zinc-400">Control Operativo y Taller</p>
+          </div>
+        </div>
+
+        <!-- Pestañas de Navegación de los 2 Casos de Uso Destacables -->
+        <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1 rounded-xl text-xs font-semibold">
+          <button onclick="cambiarCasoUso('CU01')" id="tabBtn_CU01" class="px-4 py-1.5 rounded-lg bg-blue-600 text-white transition flex items-center space-x-1.5 shadow">
+            <span>📋</span>
+            <span>Registrar Orden</span>
+          </button>
+          <button onclick="cambiarCasoUso('CU04')" id="tabBtn_CU04" class="px-4 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1.5">
+            <span>🔧</span>
+            <span>Progreso en Bahía</span>
+          </button>
+        </div>
+
+        <!-- Conmutador Wireframe y Sesión -->
+        <div class="flex items-center space-x-3 text-xs">
+          <button onclick="toggleModoWireframe()" id="btnWireframeToggle" class="px-3 py-1.5 border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg font-medium transition">
+            Modo: <strong id="lblModoTexto" class="text-orange-400">Prototipo</strong>
+          </button>
+
+          <!-- Perfil del usuario conectado -->
+          <div class="flex items-center space-x-2 pl-3 border-l border-zinc-800">
+            <div class="text-right">
+              <span id="userNombre" class="block font-bold text-white text-[12px]">Daniela Vargas</span>
+              <span id="userRolBadge" class="inline-block text-[10px] px-2 py-0.2 rounded font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Recepcionista</span>
+            </div>
+            <button onclick="cerrarSesion()" title="Cerrar Sesión" class="p-2 bg-zinc-900 hover:bg-red-950 text-zinc-400 hover:text-red-400 rounded-lg border border-zinc-800 transition">
+              🚪
+            </button>
+          </div>
+        </div>
+
+      </div>
     </header>
 
-    <!-- BARRA DEMO EVALUATIVA -->
-    <section class="bg-blue-50 border-b border-blue-200 px-6 py-2.5">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs text-blue-900">
-            <div class="flex items-center space-x-2">
-                <span class="font-bold uppercase tracking-wider bg-blue-200 px-2 py-0.5 rounded text-[10px]">Demostración Docente</span>
-                <span>Prueba precarga rápida de datos (Puntos 3 y 4 de evaluación):</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="cargarVehiculoDemo()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1 rounded transition shadow-sm">
-                    ⚡ Cargar auto frecuente con garantía (Placa MOR-452-A)
-                </button>
-                <button onclick="limpiarFormulario()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3 py-1 rounded transition">
-                    Limpiar campos
-                </button>
-            </div>
+    <!-- SUBHEADER / ALERTAS DE NEGOCIO -->
+    <section class="bg-zinc-900 text-zinc-300 border-b border-zinc-800 px-6 py-2">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+          <span>Módulo activo:</span>
+          <strong id="indicadorCasoUsoActivo" class="text-white bg-zinc-800 px-2.5 py-0.5 rounded border border-zinc-700">Recepción e Ingreso de Vehículos</strong>
         </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="cargarVehiculoDemo()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-1 rounded-md transition shadow flex items-center gap-1">
+            <span>⚡ Demo: Placa MOR-452-A</span>
+          </button>
+          <button onclick="limpiarFormularioCU01()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1 rounded-md border border-zinc-700 transition">
+            Limpiar
+          </button>
+        </div>
+      </div>
     </section>
 
-    <!-- ALERTAS DINÁMICAS -->
+    <!-- ALERTA DINÁMICA: GARANTÍA ACTIVA / SERVICIO RECIENTE -->
     <div id="alertaGarantia" class="hidden max-w-7xl mx-auto w-full px-6 pt-4">
-        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
-            <div class="flex items-start space-x-3">
-                <span class="text-xl">⚠️</span>
-                <div>
-                    <h4 class="font-bold text-amber-900 text-sm">Alerta preventiva: Servicio reciente detectado (CU-07 / RF-12)</h4>
-                    <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
-                        Este vehículo ingresó hace 12 días por "Fallo en bomba de gasolina" (Folio: <strong>TMP-2026-0889</strong>). Verifique si aplica garantía.
-                    </p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('alertaGarantia').classList.add('hidden')" class="text-amber-700 font-bold text-sm">✕</button>
+      <div class="bg-amber-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm flex items-start justify-between">
+        <div class="flex items-start space-x-3">
+          <span class="text-xl">⚠️</span>
+          <div>
+            <h4 class="font-bold text-zinc-900 text-xs">Alerta de Garantía Previa</h4>
+            <p class="text-xs text-zinc-700 mt-0.5">
+              La unidad <strong>Nissan Versa (MOR-452-A)</strong> concluyó un servicio hace 12 días por "Bomba de Gasolina". El asesor debe verificar si la anomalía reportada ampara garantía sin costo para el cliente.
+            </p>
+          </div>
         </div>
+        <button onclick="document.getElementById('alertaGarantia').classList.add('hidden')" class="text-zinc-500 hover:text-black font-bold">✕</button>
+      </div>
     </div>
 
+    <!-- ALERTA DE ERROR: CAMPOS FALTANTES -->
     <div id="alertaError" class="hidden max-w-7xl mx-auto w-full px-6 pt-4">
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
-            <div class="flex items-start space-x-3">
-                <span class="text-xl">⛔</span>
-                <div>
-                    <h4 class="font-bold text-red-900 text-sm">Error de validación: Datos obligatorios omitidos</h4>
-                    <p class="text-xs text-red-700 mt-0.5">Debe indicar obligatoriamente el cliente, placas, nivel de combustible y la falla reportada.</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('alertaError').classList.add('hidden')" class="text-red-700 font-bold text-sm">✕</button>
+      <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-r-xl shadow-sm flex items-start justify-between">
+        <div class="flex items-start space-x-3">
+          <span class="text-xl">🛑</span>
+          <div>
+            <h4 class="font-bold text-red-900 text-xs">Error de Validación: Campos Obligatorios Incompletos</h4>
+            <p class="text-xs text-red-700 mt-0.5">Debe capturar obligatoriamente el cliente, placas, nivel de gasolina y falla reportada.</p>
+          </div>
         </div>
+        <button onclick="document.getElementById('alertaError').classList.add('hidden')" class="text-red-700 font-bold">✕</button>
+      </div>
     </div>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-7xl mx-auto w-full px-6 py-6 flex-1 space-y-6">
-
-        <!-- BÚSQUEDA -->
-        <div class="wf-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <span class="text-[11px] font-bold tracking-wider text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">Paso 1 · Identificación</span>
-                    <h2 class="text-base font-bold text-slate-800 mt-1">Búsqueda rápida de unidad y cliente</h2>
-                    <p class="text-xs text-slate-500">Consulte por placa o VIN para verificar si la unidad ya está registrada (RF-01, RF-12).</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="buscarPlacaInput" placeholder="Ej. MOR-452-A..." class="wf-input uppercase tracking-wider text-sm font-semibold pl-3 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-48 sm:w-64">
-                    <button onclick="buscarPorPlacaManual()" class="wf-btn-primary bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition shadow-sm">
-                        🔍 Buscar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- FORMULARIO: CLIENTE Y VEHÍCULO -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- TABLA: CLIENTE -->
-            <div class="wf-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b pb-3 border-slate-100">
-                    <div>
-                        <span class="text-[10px] font-bold tracking-wider text-slate-500 uppercase">Tabla BD: CLIENTE · RF-01</span>
-                        <h3 class="text-sm font-bold text-slate-800">1. Datos del Propietario</h3>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Nombre(s) <span class="text-red-500">*</span></label>
-                        <input type="text" id="cli_nombre" placeholder="Ej. Carlos" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Apellidos <span class="text-red-500">*</span></label>
-                        <input type="text" id="cli_apellidos" placeholder="Ej. Mendoza Morales" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Teléfono Principal <span class="text-red-500">*</span></label>
-                        <input type="tel" id="cli_tel1" placeholder="777-123-4567" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Teléfono Secundario</label>
-                        <input type="tel" id="cli_tel2" placeholder="734-987-6543" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                </div>
-            </div>
-
-            <!-- TABLA: VEHICULO -->
-            <div class="wf-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b pb-3 border-slate-100">
-                    <div>
-                        <span class="text-[10px] font-bold tracking-wider text-slate-500 uppercase">Tabla BD: VEHICULO · RF-01</span>
-                        <h3 class="text-sm font-bold text-slate-800">2. Identificación del Vehículo</h3>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-xs">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Placas <span class="text-red-500">*</span></label>
-                        <input type="text" id="veh_placas" placeholder="MOR-452-A" class="wf-input uppercase font-bold text-blue-900 w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Marca <span class="text-red-500">*</span></label>
-                        <input type="text" id="veh_marca" placeholder="Nissan" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Modelo <span class="text-red-500">*</span></label>
-                        <input type="text" id="veh_modelo" placeholder="Versa" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Año <span class="text-red-500">*</span></label>
-                        <input type="number" id="veh_anio" placeholder="2021" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Color <span class="text-red-500">*</span></label>
-                        <input type="text" id="veh_color" placeholder="Gris Plata" class="wf-input w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Número VIN</label>
-                        <input type="text" id="veh_vin" placeholder="3N1CN7AP4ML..." class="wf-input uppercase w-full p-2 rounded-lg border border-slate-300">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TABLA: INVENTARIO RECEPCIÓN -->
-        <div class="wf-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 border-slate-100 gap-2">
-                <div>
-                    <span class="text-[10px] font-bold tracking-wider text-slate-500 uppercase">Tabla BD: INVENTARIO_RECEPCION · RF-02</span>
-                    <h3 class="text-sm font-bold text-slate-800">3. Inventario Físico e Inspección Perimetral</h3>
-                </div>
-                <p class="text-xs text-slate-500 italic">Haz clic sobre la silueta para registrar daños preexistentes</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                <div class="lg:col-span-4 space-y-4 text-xs">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Nivel de Combustible <span class="text-red-500">*</span></label>
-                        <select id="inv_gasolina" class="wf-input w-full p-2 rounded-lg border border-slate-300 bg-white font-medium">
-                            <option value="">-- Seleccionar nivel --</option>
-                            <option value="Reserva">Reserva (E)</option>
-                            <option value="1/4">1/4 de tanque</option>
-                            <option value="1/2" selected>1/2 de tanque</option>
-                            <option value="3/4">3/4 de tanque</option>
-                            <option value="Lleno">Tanque Lleno (F)</option>
-                        </select>
-                    </div>
-
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                        <label class="block font-semibold text-slate-700 mb-2">Daño a registrar con clic:</label>
-                        <div class="flex gap-2">
-                            <label class="flex items-center space-x-1.5 cursor-pointer">
-                                <input type="radio" name="tipoDanio" value="golpe" checked class="text-red-600">
-                                <span class="text-red-600 font-semibold">🔴 Golpe</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 cursor-pointer">
-                                <input type="radio" name="tipoDanio" value="rayon" class="text-amber-500">
-                                <span class="text-amber-600 font-semibold">🟠 Rayón</span>
-                            </label>
-                            <label class="flex items-center space-x-1.5 cursor-pointer">
-                                <input type="radio" name="tipoDanio" value="abolladura" class="text-purple-600">
-                                <span class="text-purple-600 font-semibold">🟣 Abolladura</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARROCERÍA INTERACTIVA -->
-                <div class="lg:col-span-5 flex flex-col items-center justify-center p-3 bg-slate-100 rounded-xl border border-slate-200">
-                    <div class="relative w-full max-w-[280px] h-[320px] bg-white rounded-lg border border-slate-300 shadow-inner flex items-center justify-center cursor-crosshair select-none" id="carSilhouetteContainer" onclick="agregarDanio(event)">
-                        <svg viewBox="0 0 160 300" class="w-full h-full p-2 pointer-events-none opacity-80">
-                            <path d="M 35 45 C 35 20, 125 20, 125 45 L 132 100 C 136 120, 136 210, 132 250 C 130 285, 30 285, 28 250 C 24 210, 24 120, 28 100 Z" fill="#f8fafc" stroke="#475569" stroke-width="3" />
-                            <path d="M 38 85 L 122 85 L 115 125 L 45 125 Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2" />
-                            <rect x="44" y="130" width="72" height="75" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" />
-                            <path d="M 45 210 L 115 210 L 120 235 L 40 235 Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2" />
-                            <rect x="15" y="55" width="12" height="32" rx="3" fill="#1e293b" />
-                            <rect x="133" y="55" width="12" height="32" rx="3" fill="#1e293b" />
-                            <rect x="15" y="215" width="12" height="32" rx="3" fill="#1e293b" />
-                            <rect x="133" y="215" width="12" height="32" rx="3" fill="#1e293b" />
-                        </svg>
-                        <div id="pinsOverlay" class="absolute inset-0 pointer-events-auto"></div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-3 flex flex-col justify-between text-xs space-y-2">
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="font-bold text-slate-700">Daños detectados:</span>
-                            <button onclick="limpiarDanios()" class="text-[11px] text-red-600 hover:underline">Limpiar</button>
-                        </div>
-                        <div id="listaDanios" class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                            <div class="p-2 bg-slate-50 rounded border border-slate-200 text-slate-400 text-center italic">Sin marcas registradas</div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- TABLA: ORDEN_SERVICIO -->
-        <div class="wf-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex items-center justify-between border-b pb-3 border-slate-100">
-                <div>
-                    <span class="text-[10px] font-bold tracking-wider text-slate-500 uppercase">Tabla BD: ORDEN_SERVICIO · RF-03</span>
-                    <h3 class="text-sm font-bold text-slate-800">4. Diagnóstico Inicial y Falla Reportada</h3>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div class="md:col-span-2">
-                    <label class="block font-semibold text-slate-700 mb-1">Descripción detallada de la falla <span class="text-red-500">*</span></label>
-                    <textarea id="ord_falla" rows="3" placeholder="Ej. Cascabeleo al acelerar a más de 60 km/h y fuga ligera de anticongelante..." class="wf-input w-full p-2.5 rounded-lg border border-slate-300 font-sans"></textarea>
-                </div>
-                <div class="space-y-3">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Mecánico Asignado</label>
-                        <select id="ord_mecanico" class="wf-input w-full p-2 rounded-lg border border-slate-300 bg-white">
-                            <option value="1">Roberto Sánchez (Elevador 1)</option>
-                            <option value="2">Miguel Ángel Cruz (Fosa 2)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ACCIONES -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-            <button onclick="mostrarModalTrazabilidad()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold underline">
-                🔗 Ver Matriz de Trazabilidad con la BD (Evaluación E3)
+    <!-- ======================================================== -->
+    <!-- CASO DE USO 1: REGISTRAR ORDEN DE SERVICIO (VISTA)       -->
+    <!-- ======================================================== -->
+    <main id="vistaCU01" class="max-w-7xl mx-auto w-full px-6 py-6 flex-1 space-y-6">
+      
+      <!-- Búsqueda Rápida de Unidad -->
+      <div class="wf-card bg-white p-5 rounded-xl border border-zinc-200 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-[11px] font-bold tracking-wider text-blue-700 uppercase bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">Búsqueda Inicial</span>
+            <h2 class="text-sm font-bold text-zinc-900 mt-1">Localización de Unidad y Cliente</h2>
+            <p class="text-xs text-zinc-500">Ingrese matrícula o serie para recuperar datos o abrir un nuevo registro de servicio.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="buscarPlacaInput" placeholder="Ej. MOR-452-A..." class="wf-input uppercase tracking-wider text-xs font-semibold px-3 py-2 rounded-lg border border-zinc-300 w-48 sm:w-60 focus:outline-none focus:border-blue-600">
+            <button onclick="buscarPlacaManual()" class="wf-btn-action bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow">
+              Buscar
             </button>
-            <div class="flex items-center space-x-3 w-full sm:w-auto">
-                <button onclick="limpiarFormulario()" class="px-5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-xs font-semibold">Limpiar</button>
-                <button onclick="procesarRegistroOrden()" class="wf-btn-primary px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-md">
-                    💾 Registrar Orden de Servicio
-                </button>
-            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Formularios: Cliente y Vehículo -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- 1. Propietario -->
+        <div class="wf-card bg-white p-5 rounded-xl border border-zinc-200 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
+            <h3 class="text-xs font-bold text-zinc-900">1. Datos del Cliente</h3>
+            <span class="text-[10px] text-zinc-500 font-medium">Titular de la orden</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Nombre(s) <span class="text-orange-600">*</span></label>
+              <input type="text" id="cli_nombre" placeholder="Ej. Carlos" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Apellidos <span class="text-orange-600">*</span></label>
+              <input type="text" id="cli_apellidos" placeholder="Mendoza Morales" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Teléfono Principal <span class="text-orange-600">*</span></label>
+              <input type="tel" id="cli_tel1" placeholder="777-123-4567" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Teléfono Respaldo</label>
+              <input type="tel" id="cli_tel2" placeholder="734-987-6543" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Vehículo -->
+        <div class="wf-card bg-white p-5 rounded-xl border border-zinc-200 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
+            <h3 class="text-xs font-bold text-zinc-900">2. Identificación del Vehículo</h3>
+            <span class="text-[10px] text-blue-700 font-medium">Ficha técnica</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Placas <span class="text-orange-600">*</span></label>
+              <input type="text" id="veh_placas" placeholder="PXZ-881-C" class="wf-input uppercase font-bold text-blue-700 w-full p-2 rounded-lg border border-zinc-300">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Marca <span class="text-orange-600">*</span></label>
+              <input type="text" id="veh_marca" placeholder="Nissan" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Modelo <span class="text-orange-600">*</span></label>
+              <input type="text" id="veh_modelo" placeholder="Versa" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Año <span class="text-orange-600">*</span></label>
+              <input type="number" id="veh_anio" placeholder="2021" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Color <span class="text-orange-600">*</span></label>
+              <input type="text" id="veh_color" placeholder="Gris Plata" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Número de Serie (VIN)</label>
+              <input type="text" id="veh_vin" placeholder="3N1CN7AP..." class="wf-input uppercase w-full p-2 rounded-lg border border-zinc-300">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. Inventario Físico y Deslinde Carrocería -->
+      <div class="wf-card bg-white p-5 rounded-xl border border-zinc-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2.5 border-zinc-100 gap-2">
+          <h3 class="text-xs font-bold text-zinc-900">3. Inventario Físico y Deslinde Perimetral de Daños</h3>
+          <span class="text-[11px] text-orange-600 font-semibold bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+            Haz clic en la silueta para marcar golpes o rayones
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
+          
+          <!-- Controles de inventario -->
+          <div class="lg:col-span-4 space-y-4">
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Nivel de Combustible <span class="text-orange-600">*</span></label>
+              <select id="inv_gasolina" class="wf-input w-full p-2 rounded-lg border border-zinc-300 bg-white font-medium">
+                <option value="">-- Seleccionar combustible --</option>
+                <option value="Reserva">Reserva (E)</option>
+                <option value="1/4">1/4 de tanque</option>
+                <option value="1/2" selected>1/2 de tanque</option>
+                <option value="3/4">3/4 de tanque</option>
+                <option value="Lleno">Tanque Lleno (F)</option>
+              </select>
+            </div>
+
+            <!-- Selector de tipo de daño -->
+            <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-200">
+              <span class="block font-bold text-zinc-700 mb-2 text-[11px] uppercase">Tipo de marca al hacer clic:</span>
+              <div class="flex gap-3">
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="tipoDanio" value="golpe" checked class="text-orange-600">
+                  <span class="text-orange-600 font-bold">● Golpe</span>
+                </label>
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="tipoDanio" value="rayon" class="text-amber-500">
+                  <span class="text-amber-600 font-bold">● Rayón</span>
+                </label>
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="tipoDanio" value="abolladura" class="text-blue-600">
+                  <span class="text-blue-600 font-bold">● Abolladura</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Pertenencias -->
+            <div>
+              <span class="block font-semibold text-zinc-700 mb-1.5">Pertenencias e inventario a bordo:</span>
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <label class="flex items-center space-x-1.5"><input type="checkbox" checked class="rounded text-orange-600"><span>Llanta refacción</span></label>
+                <label class="flex items-center space-x-1.5"><input type="checkbox" checked class="rounded text-orange-600"><span>Gato y llave</span></label>
+                <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded text-orange-600"><span>Cables corriente</span></label>
+                <label class="flex items-center space-x-1.5"><input type="checkbox" checked class="rounded text-orange-600"><span>Juego de tapetes</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Silueta SVG Interactiva -->
+          <div class="lg:col-span-5 flex flex-col items-center justify-center p-3 bg-zinc-950 rounded-xl border border-zinc-800">
+            <div class="relative w-full max-w-[240px] h-[310px] bg-zinc-900 rounded-lg border border-zinc-700 shadow-inner flex items-center justify-center cursor-crosshair select-none" id="carSilhouetteContainer" onclick="agregarDanio(event)">
+              <svg viewBox="0 0 160 300" class="w-full h-full p-2 pointer-events-none opacity-80">
+                <path d="M 35 45 C 35 20, 125 20, 125 45 L 132 100 C 136 120, 136 210, 132 250 C 130 285, 30 285, 28 250 C 24 210, 24 120, 28 100 Z" fill="#27272a" stroke="#71717a" stroke-width="2.5"/>
+                <path d="M 38 85 L 122 85 L 115 125 L 45 125 Z" fill="#3f3f46" stroke="#a1a1aa" stroke-width="1.5"/>
+                <rect x="44" y="130" width="72" height="75" rx="3" fill="#18181b" stroke="#71717a" stroke-width="1.5"/>
+                <path d="M 45 210 L 115 210 L 120 235 L 40 235 Z" fill="#3f3f46" stroke="#a1a1aa" stroke-width="1.5"/>
+                <rect x="14" y="55" width="12" height="32" rx="3" fill="#000000"/>
+                <rect x="134" y="55" width="12" height="32" rx="3" fill="#000000"/>
+                <rect x="14" y="215" width="12" height="32" rx="3" fill="#000000"/>
+                <rect x="134" y="215" width="12" height="32" rx="3" fill="#000000"/>
+                <text x="80" y="55" font-size="8" fill="#a1a1aa" text-anchor="middle" font-weight="bold">FRENTE</text>
+                <text x="80" y="265" font-size="8" fill="#a1a1aa" text-anchor="middle" font-weight="bold">TRASERA</text>
+              </svg>
+              <div id="pinsOverlay" class="absolute inset-0 pointer-events-auto"></div>
+            </div>
+            <span class="text-[10px] text-zinc-400 mt-2 font-mono">Clic sobre cofre, puertas o salpicaderas</span>
+          </div>
+
+          <!-- Lista de Daños -->
+          <div class="lg:col-span-3 flex flex-col justify-between space-y-2">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-bold text-zinc-800">Daños Marcados:</span>
+                <button onclick="limpiarDanios()" class="text-[10px] text-red-600 hover:underline">Quitar todos</button>
+              </div>
+              <div id="listaDanios" class="space-y-1 max-h-44 overflow-y-auto pr-1">
+                <div class="p-2 bg-zinc-50 rounded border border-zinc-200 text-zinc-400 text-center italic text-[11px]">
+                  Sin daños registrados
+                </div>
+              </div>
+            </div>
+            <div class="p-2 bg-blue-50 border border-blue-200 rounded text-[11px] text-blue-900">
+              <strong>Deslinde de responsabilidad:</strong> La inspección queda resguardada y foliada en el comprobante.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 4. Falla y Síntomas -->
+      <div class="wf-card bg-white p-5 rounded-xl border border-zinc-200 shadow-sm space-y-3.5">
+        <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
+          <h3 class="text-xs font-bold text-zinc-900">4. Diagnóstico Inicial y Asignación de Bahía</h3>
+          <span class="text-[10px] font-mono bg-orange-100 text-orange-800 px-2 py-0.5 rounded font-bold">Estado: Ingresado</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-zinc-700 mb-1">Falla Reportada por el Cliente <span class="text-orange-600">*</span></label>
+            <textarea id="ord_falla" rows="3" placeholder="Ej. El cliente manifiesta rechinido al frenar y olor a combustible al detenerse..." class="wf-input w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600"></textarea>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Mecánico Asignado (Bahía):</label>
+              <select id="ord_mecanico" class="wf-input w-full p-2 rounded-lg border border-zinc-300 bg-white font-medium">
+                <option value="1">Roberto Sánchez (Elevador 1 - Motor)</option>
+                <option value="2">Miguel Ángel Cruz (Fosa 2 - Frenos/Susp.)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Recepcionista Responsable:</label>
+              <input type="text" id="ord_responsable" value="Daniela Vargas" readonly class="wf-input w-full p-2 rounded-lg bg-zinc-100 border border-zinc-300 font-bold text-zinc-700">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón Principal de Acción -->
+      <div class="flex justify-end pt-2">
+        <button onclick="procesarRegistroOrden()" class="wf-btn-action bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs px-8 py-3 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center space-x-2">
+          <span>💾 Registrar e Imprimir Orden de Servicio</span>
+          <span>→</span>
+        </button>
+      </div>
 
     </main>
 
-    <!-- MODAL CONFIRMACIÓN -->
-    <div id="modalExito" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4">
-            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
-            <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Inserción Exitosa</span>
-                <h3 class="text-lg font-bold text-slate-800 mt-1">Orden de Servicio Registrada</h3>
-                <p class="text-xs text-slate-500">Los datos se han procesado correctamente hacia el modelo relacional.</p>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left text-xs space-y-2">
-                <div class="flex justify-between border-b pb-1.5"><span class="text-slate-500">Folio Asignado:</span><span id="ticketFolio" class="font-bold text-blue-700">TMP-2026-1042</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Cliente:</span><span id="ticketCliente" class="font-semibold text-slate-800">Carlos Mendoza</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Vehículo:</span><span id="ticketVehiculo" class="font-semibold text-slate-800">Nissan Versa (MOR-452-A)</span></div>
-            </div>
-            <button onclick="cerrarModalExito()" class="w-full py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Aceptar</button>
+    <!-- ======================================================== -->
+    <!-- CASO DE USO 2: ACTUALIZAR PROGRESO DEL SERVICIO (BAHÍA)  -->
+    <!-- ======================================================== -->
+    <main id="vistaCU04" class="hidden max-w-7xl mx-auto w-full px-6 py-6 flex-1 space-y-6">
+
+      <div class="wf-card bg-black text-white p-6 rounded-2xl border border-zinc-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <span class="text-[10px] font-bold tracking-widest text-orange-400 uppercase bg-orange-500/10 px-2.5 py-0.5 rounded border border-orange-500/30">Módulo de Bahía</span>
+          <h2 class="text-lg font-black text-white mt-1">Tablero Operativo de Bahías de Trabajo (Fosas y Elevadores)</h2>
+          <p class="text-xs text-zinc-400">Actualización en tiempo real del progreso técnico sin traslados a pie ni llamadas en espera.</p>
         </div>
-    </div>
-
-    <!-- MODAL TRAZABILIDAD -->
-    <div id="modalTrazabilidad" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-base text-slate-800">Trazabilidad Pantalla ↔ Base de Datos</h3>
-                <button onclick="document.getElementById('modalTrazabilidad').classList.add('hidden')" class="font-bold text-slate-400">✕</button>
-            </div>
-            <div class="text-xs">
-                <table class="w-full border-collapse border border-slate-200 text-left">
-                    <thead class="bg-slate-100 font-semibold">
-                        <tr><th class="p-2 border">Elemento de Interfaz</th><th class="p-2 border">Tabla y Campo BD</th><th class="p-2 border">Requisito</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td class="p-2">Campo Nombre / Teléfono</td><td class="p-2 font-mono text-blue-700">CLIENTE.nombre, telefono</td><td class="p-2">RF-01</td></tr>
-                        <tr><td class="p-2">Campo Placas / Modelo</td><td class="p-2 font-mono text-blue-700">VEHICULO.placas, modelo</td><td class="p-2">RF-01 / RF-12</td></tr>
-                        <tr><td class="p-2">Selección Combustible / Daños</td><td class="p-2 font-mono text-blue-700">INVENTARIO_RECEPCION.nivel_gasolina</td><td class="p-2">RF-02</td></tr>
-                        <tr><td class="p-2">Descripción de Falla</td><td class="p-2 font-mono text-blue-700">ORDEN_SERVICIO.falla_reportada</td><td class="p-2">RF-03</td></tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="flex items-center space-x-2 text-xs">
+          <span class="bg-zinc-800 text-zinc-300 px-3 py-1.5 rounded-lg border border-zinc-700 font-mono">Técnico: Roberto Sánchez</span>
         </div>
+      </div>
+
+      <!-- Lista de Vehículos en Bahía -->
+      <div id="contenedorTarjetasBahia" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Renderizado dinámico -->
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL: TICKET DE REGISTRO EXITOSO -->
+  <div id="modalTicket" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-zinc-200 text-center space-y-4">
+      <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+        ✓
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded">Comprobante Emitido</span>
+        <h3 class="text-base font-bold text-zinc-900 mt-1">Orden de Servicio Registrada</h3>
+        <p class="text-xs text-zinc-500">Se guardó con éxito en el sistema.</p>
+      </div>
+
+      <div class="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200 text-left text-xs space-y-1.5 font-mono">
+        <div class="flex justify-between border-b pb-1 text-black font-bold">
+          <span>FOLIO:</span>
+          <span id="ticketFolio" class="text-blue-700 font-black">MP-2026-1042</span>
+        </div>
+        <div class="flex justify-between pt-1">
+          <span class="text-zinc-500">Cliente:</span>
+          <span id="ticketCliente" class="font-semibold text-zinc-800">Carlos Mendoza</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Vehículo:</span>
+          <span id="ticketVehiculo" class="font-semibold text-zinc-800">Nissan Versa</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Combustible:</span>
+          <span id="ticketGasolina" class="font-semibold text-zinc-800">1/2</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Daños:</span>
+          <span id="ticketDanios" class="font-semibold text-zinc-800">2 marcas</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2 text-xs">
+        <button onclick="irABahiaConNuevoAuto()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition">
+          Ver en Bahía →
+        </button>
+        <button onclick="cerrarTicket()" class="w-full py-2.5 bg-zinc-900 hover:bg-black text-white rounded-lg font-bold transition">
+          Aceptar
+        </button>
+      </div>
     </div>
+  </div>
 
-    <script>
-    let listaDaniosRegistrados = [];
+  <!-- SCRIPT CON LÓGICA DE NEGOCIO Y ESTADOS -->
+  <script>
+    // Estado del Usuario y Datos de Sesión
+    let usuarioActivo = {
+      rol: 'Recepcionista',
+      nombre: 'Daniela Vargas',
+      email: 'recepcion@motorplus.com'
+    };
 
-    function toggleModo(esWireframe) {
-      document.body.classList.toggle('wireframe-mode', esWireframe);
+    let listaDanios = [];
+    let esModoWireframe = false;
+
+    // Lista de órdenes activas (Persistencia en memoria entre recepción y bahía)
+    let ordenesActivas = [
+      {
+        id: 1,
+        folio: 'MP-2026-0981',
+        placas: 'MOR-452-A',
+        auto: 'Nissan Versa 2021',
+        cliente: 'Carlos Mendoza',
+        mecanico: 'Roberto Sánchez',
+        falla: 'Zumbido en tren delantero y cascabeleo',
+        estado: 'En diagnóstico',
+        hora: '08:30 AM',
+        bahia: 'Elevador 1'
+      },
+      {
+        id: 2,
+        folio: 'MP-2026-0982',
+        placas: 'NVX-112-B',
+        auto: 'Volkswagen Jetta 2019',
+        cliente: 'Laura Gutiérrez',
+        mecanico: 'Miguel Ángel Cruz',
+        falla: 'Frenos rechinando y pedal esponjoso',
+        estado: 'Esperando refacciones',
+        hora: '09:15 AM',
+        bahia: 'Fosa 2'
+      }
+    ];
+
+    // 1. Manejo del Login por Rol
+    function seleccionarRol(rol, nombre, email) {
+      usuarioActivo = { rol, nombre, email };
+
+      document.querySelectorAll('.rol-btn').forEach(btn => {
+        btn.className = "rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700";
+      });
+
+      const btnActivo = document.getElementById(`rolBtn_${rol}`);
+      btnActivo.className = "rol-btn border border-orange-500 bg-orange-500/10 text-orange-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition";
+
+      document.getElementById('loginEmail').value = email;
     }
 
-    function agregarDanio(event) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const x = Math.round(event.clientX - rect.left);
-      const y = Math.round(event.clientY - rect.top);
-      const tipo = document.querySelector('input[name="tipoDanio"]:checked').value;
+    function iniciarSesion(event) {
+      event.preventDefault();
+      document.getElementById('pantallaLogin').classList.add('hidden');
+      document.getElementById('pantallaApp').classList.remove('hidden');
 
-      listaDaniosRegistrados.push({ id: Date.now(), numero: listaDaniosRegistrados.length + 1, tipo, x, y });
+      // Actualizar interfaz con datos del usuario
+      document.getElementById('userNombre').innerText = usuarioActivo.nombre;
+      document.getElementById('userRolBadge').innerText = usuarioActivo.rol;
+      document.getElementById('ord_responsable').value = usuarioActivo.nombre;
+
+      // Adaptar vista inicial según el rol seleccionado
+      if (usuarioActivo.rol === 'Mecanico') {
+        cambiarCasoUso('CU04');
+      } else {
+        cambiarCasoUso('CU01');
+      }
+
+      renderizarTarjetasBahia();
+    }
+
+    function cerrarSesion() {
+      document.getElementById('pantallaApp').classList.add('hidden');
+      document.getElementById('pantallaLogin').classList.remove('hidden');
+    }
+
+    // 2. Conmutador de Vistas (Recepción vs Bahía)
+    function cambiarCasoUso(caso) {
+      if (caso === 'CU01') {
+        document.getElementById('vistaCU01').classList.remove('hidden');
+        document.getElementById('vistaCU04').classList.add('hidden');
+        document.getElementById('tabBtn_CU01').className = "px-4 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition shadow";
+        document.getElementById('tabBtn_CU04').className = "px-4 py-1.5 rounded-lg text-zinc-400 hover:text-white transition";
+        document.getElementById('indicadorCasoUsoActivo').innerText = "Recepción e Ingreso de Vehículos";
+      } else {
+        document.getElementById('vistaCU01').classList.add('hidden');
+        document.getElementById('vistaCU04').classList.remove('hidden');
+        document.getElementById('tabBtn_CU04').className = "px-4 py-1.5 rounded-lg bg-orange-600 text-white font-bold transition shadow";
+        document.getElementById('tabBtn_CU01').className = "px-4 py-1.5 rounded-lg text-zinc-400 hover:text-white transition";
+        document.getElementById('indicadorCasoUsoActivo').innerText = "Monitoreo y Control de Bahías";
+        renderizarTarjetasBahia();
+      }
+    }
+
+    // 3. Alternar Modo Wireframe (Baja fidelidad)
+    function toggleModoWireframe() {
+      esModoWireframe = !esModoWireframe;
+      if (esModoWireframe) {
+        document.body.classList.add('wireframe-mode');
+        document.getElementById('lblModoTexto').innerText = "Wireframe (Baja)";
+        document.getElementById('lblModoTexto').className = "text-zinc-900";
+      } else {
+        document.body.classList.remove('wireframe-mode');
+        document.getElementById('lblModoTexto').innerText = "Prototipo";
+        document.getElementById('lblModoTexto').className = "text-orange-400";
+      }
+    }
+
+    // 4. Lógica de Carrocería (Inventario de Daños)
+    function agregarDanio(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = Math.round(e.clientX - rect.left);
+      const y = Math.round(e.clientY - rect.top);
+
+      const tipo = document.querySelector('input[name="tipoDanio"]:checked').value;
+      const nuevo = { id: Date.now(), num: listaDanios.length + 1, tipo, x, y };
+
+      listaDanios.push(nuevo);
       renderizarPines();
     }
 
     function renderizarPines() {
-      const container = document.getElementById('pinsOverlay');
-      const lista = document.getElementById('listaDanios');
-      container.innerHTML = '';
-
-      if (listaDaniosRegistrados.length === 0) {
-        lista.innerHTML = `<div class="p-2 bg-slate-50 rounded border text-slate-400 text-center italic">Sin marcas registradas</div>`;
-        return;
-      }
-
-      lista.innerHTML = '';
-      listaDaniosRegistrados.forEach((d, i) => {
+      const cont = document.getElementById('pinsOverlay');
+      cont.innerHTML = '';
+      listaDanios.forEach(d => {
         const pin = document.createElement('div');
         pin.className = `damage-pin pin-${d.tipo}`;
         pin.style.left = `${d.x}px`;
         pin.style.top = `${d.y}px`;
-        pin.innerText = i + 1;
-        container.appendChild(pin);
-
-        lista.innerHTML += `
-          <div class="flex items-center justify-between p-1 bg-slate-50 rounded border text-[11px]">
-            <span>${i + 1}. Marca ${d.tipo}</span>
-            <button onclick="eliminarDanio(${d.id})" class="text-red-500 font-bold">✕</button>
-          </div>`;
+        pin.innerText = d.num;
+        pin.onclick = (e) => { e.stopPropagation(); eliminarDanio(d.id); };
+        cont.appendChild(pin);
       });
+
+      const lista = document.getElementById('listaDanios');
+      if (listaDanios.length === 0) {
+        lista.innerHTML = `<div class="p-2 bg-zinc-50 rounded border border-zinc-200 text-zinc-400 text-center italic text-[11px]">Sin daños registrados</div>`;
+        return;
+      }
+      lista.innerHTML = listaDanios.map((d, i) => `
+        <div class="flex items-center justify-between p-1 bg-zinc-50 border rounded text-[11px]">
+          <span class="font-semibold text-zinc-700 capitalize">#${i+1} ${d.tipo} (X:${d.x}, Y:${d.y})</span>
+          <button onclick="eliminarDanio(${d.id})" class="text-red-500 font-bold px-1">✕</button>
+        </div>
+      `).join('');
     }
 
     function eliminarDanio(id) {
-      listaDaniosRegistrados = listaDaniosRegistrados.filter(d => d.id !== id);
+      listaDanios = listaDanios.filter(d => d.id !== id);
+      listaDanios.forEach((d, i) => d.num = i + 1);
       renderizarPines();
     }
 
     function limpiarDanios() {
-      listaDaniosRegistrados = [];
+      listaDanios = [];
       renderizarPines();
     }
 
+    // 5. Cargar Datos Demo y Búsqueda
     function cargarVehiculoDemo() {
+      document.getElementById('buscarPlacaInput').value = "MOR-452-A";
       document.getElementById('cli_nombre').value = "Carlos";
       document.getElementById('cli_apellidos').value = "Mendoza Morales";
       document.getElementById('cli_tel1').value = "777-456-7890";
+      document.getElementById('cli_tel2').value = "777-111-2233";
       document.getElementById('veh_placas').value = "MOR-452-A";
       document.getElementById('veh_marca').value = "Nissan";
       document.getElementById('veh_modelo').value = "Versa";
       document.getElementById('veh_anio').value = "2021";
       document.getElementById('veh_color').value = "Gris Plata";
+      document.getElementById('veh_vin').value = "3N1CN7AP4ML998214";
       document.getElementById('inv_gasolina').value = "1/2";
-      document.getElementById('ord_falla').value = "Cascabeleo en motor al acelerar a más de 60 km/h.";
+      document.getElementById('ord_falla').value = "Zumbido fuerte en el tren delantero al girar a la derecha.";
 
+      listaDanios = [
+        { id: 1, num: 1, tipo: 'golpe', x: 45, y: 110 },
+        { id: 2, num: 2, tipo: 'rayon', x: 115, y: 220 }
+      ];
+      renderizarPines();
       document.getElementById('alertaGarantia').classList.remove('hidden');
+      document.getElementById('alertaError').classList.add('hidden');
     }
 
-    function buscarPorPlacaManual() {
+    function buscarPlacaManual() {
       const val = document.getElementById('buscarPlacaInput').value.trim().toUpperCase();
-      if (val === "MOR-452-A") cargarVehiculoDemo();
-      else alert("Unidad no encontrada. Capture los datos del nuevo vehículo.");
+      if (val === "MOR-452-A") {
+        cargarVehiculoDemo();
+      } else if (!val) {
+        alert("Escriba una placa válida.");
+      } else {
+        alert("Unidad no registrada previamente. Proceda con la captura del nuevo cliente.");
+        document.getElementById('veh_placas').value = val;
+      }
     }
 
-    function limpiarFormulario() {
-      document.querySelectorAll('input, select, textarea').forEach(el => el.value = '');
+    function limpiarFormularioCU01() {
+      document.getElementById('buscarPlacaInput').value = '';
+      document.getElementById('cli_nombre').value = '';
+      document.getElementById('cli_apellidos').value = '';
+      document.getElementById('cli_tel1').value = '';
+      document.getElementById('cli_tel2').value = '';
+      document.getElementById('veh_placas').value = '';
+      document.getElementById('veh_marca').value = '';
+      document.getElementById('veh_modelo').value = '';
+      document.getElementById('veh_anio').value = '';
+      document.getElementById('veh_color').value = '';
+      document.getElementById('veh_vin').value = '';
+      document.getElementById('inv_gasolina').value = '';
+      document.getElementById('ord_falla').value = '';
       limpiarDanios();
       document.getElementById('alertaGarantia').classList.add('hidden');
       document.getElementById('alertaError').classList.add('hidden');
     }
 
-    function procesarRegistroOrden() {
-      const nombre = document.getElementById('cli_nombre').value;
-      const placa = document.getElementById('veh_placas').value;
-      const falla = document.getElementById('ord_falla').value;
+    // 6. Registro de la Orden y Enlace a Bahías
 
-      if (!nombre || !placa || !falla) {
-        document.getElementById('alertaError').classList.remove('hidden');
-        return;
+async function procesarRegistroOrden() {
+  const nombre = document.getElementById('cli_nombre').value.trim();
+  const apellidos = document.getElementById('cli_apellidos').value.trim();
+  const tel1 = document.getElementById('cli_tel1').value.trim();
+  const tel2 = document.getElementById('cli_tel2').value.trim();
+  const placas = document.getElementById('veh_placas').value.trim();
+  const marca = document.getElementById('veh_marca').value.trim();
+  const modelo = document.getElementById('veh_modelo').value.trim();
+  const anio = document.getElementById('veh_anio').value;
+  const color = document.getElementById('veh_color').value;
+  const vin = document.getElementById('veh_vin').value;
+  const gasolina = document.getElementById('inv_gasolina').value;
+  const falla = document.getElementById('ord_falla').value.trim();
+  const mecanicoObj = document.getElementById('ord_mecanico');
+  const mecanico = mecanicoObj.options[mecanicoObj.selectedIndex].text;
+
+  if (!nombre || !tel1 || !placas || !gasolina || !falla) {
+    document.getElementById('alertaError').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  document.getElementById('alertaError').classList.add('hidden');
+
+  // Estructura de datos para enviar a la BD
+  const payload = {
+    cliente: { nombre, apellidos, telefono1: tel1, telefono2: tel2 },
+    vehiculo: { placas: placas.toUpperCase(), marca, modelo, anio: parseInt(anio) || 2021, color, vin },
+    inventario: { combustible: gasolina, danos: listaDanios },
+    orden: { falla, mecanico, responsable: usuarioActivo.nombre }
+  };
+
+  try {
+    // Petición al backend en PostgreSQL
+    const response = await fetch('http://localhost:3000/api/ordenes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Llenar Modal de Comprobante
+      document.getElementById('ticketFolio').innerText = data.folio;
+      document.getElementById('ticketCliente').innerText = `${nombre} ${apellidos}`;
+      document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas.toUpperCase()})`;
+      document.getElementById('ticketGasolina').innerText = gasolina;
+      document.getElementById('ticketDanios').innerText = `${listaDanios.length} marcas en carrocería`;
+
+      document.getElementById('modalTicket').classList.remove('hidden');
+    } else {
+      alert("Error al guardar en la base de datos: " + data.error);
+    }
+  } catch (err) {
+    console.error("Error de conexión:", err);
+    alert("No se pudo conectar con el servidor backend en localhost:3000. Asegúrate de ejecutar node server.js");
+  }
+}
+
+    function cerrarTicket() {
+      document.getElementById('modalTicket').classList.add('hidden');
+      limpiarFormularioCU01();
+    }
+
+    function irABahiaConNuevoAuto() {
+      cerrarTicket();
+      cambiarCasoUso('CU04');
+    }
+
+    // 7. Renderizado del Tablero de Bahías
+    function renderizarTarjetasBahia() {
+      const contenedor = document.getElementById('contenedorTarjetasBahia');
+      contenedor.innerHTML = ordenesActivas.map(ord => `
+        <div class="wf-card bg-white p-5 rounded-2xl border border-zinc-200 shadow-md flex flex-col justify-between space-y-4">
+          
+          <div>
+            <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
+              <span class="font-mono font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${ord.folio}</span>
+              <span class="text-[10px] text-zinc-400 font-mono">${ord.hora}</span>
+            </div>
+
+            <div class="mt-3">
+              <h4 class="text-sm font-black text-zinc-900">${ord.auto}</h4>
+              <p class="text-xs font-mono font-bold text-orange-600">${ord.placas}</p>
+              <p class="text-xs text-zinc-500 mt-1">Cliente: <strong class="text-zinc-800">${ord.cliente}</strong></p>
+            </div>
+
+            <div class="mt-3 p-2.5 bg-zinc-50 rounded-xl border border-zinc-200 text-xs">
+              <span class="block text-[10px] font-bold text-zinc-400 uppercase">Falla Asignada:</span>
+              <p class="text-zinc-700 line-clamp-2 mt-0.5">${ord.falla}</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-2 border-t border-zinc-100 text-xs">
+            <div>
+              <label class="block text-[11px] font-bold text-zinc-700 mb-1">Fase Operativa (Actualizar Estado):</label>
+              <select onchange="cambiarEstadoOrden(${ord.id}, this.value)" class="wf-input w-full p-2 rounded-lg border border-zinc-300 font-bold ${obtenerColorEstado(ord.estado)}">
+                <option value="Ingresado" ${ord.estado === 'Ingresado' ? 'selected' : ''}>Ingresado (Recepción)</option>
+                <option value="En diagnóstico" ${ord.estado === 'En diagnóstico' ? 'selected' : ''}>En diagnóstico (Fosa/Elevador)</option>
+                <option value="Esperando refacciones" ${ord.estado === 'Esperando refacciones' ? 'selected' : ''}>Esperando refacciones</option>
+                <option value="En reparación" ${ord.estado === 'En reparación' ? 'selected' : ''}>En reparación</option>
+                <option value="Terminado" ${ord.estado === 'Terminado' ? 'selected' : ''}>Terminado (Listo para entrega)</option>
+              </select>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-zinc-400 font-mono">
+              <span>Bahía: ${ord.bahia}</span>
+              <span>Resp: ${ord.mecanico}</span>
+            </div>
+          </div>
+
+        </div>
+      `).join('');
+    }
+
+    function cambiarEstadoOrden(id, nuevoEstado) {
+      const orden = ordenesActivas.find(o => o.id === id);
+      if (orden) {
+        orden.estado = nuevoEstado;
+        if (nuevoEstado === 'Terminado') {
+          alert(`🔔 NOTIFICACIÓN A RECEPCIÓN: La unidad ${orden.auto} (${orden.placas}) ha concluido la prueba de ruta y está LISTA para entrega y cobro.`);
+        }
+        renderizarTarjetasBahia();
       }
-
-      document.getElementById('ticketFolio').innerText = `TMP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-      document.getElementById('ticketCliente').innerText = nombre;
-      document.getElementById('ticketVehiculo').innerText = placa;
-      document.getElementById('modalExito').classList.remove('hidden');
     }
 
-    function cerrarModalExito() {
-      document.getElementById('modalExito').classList.add('hidden');
-      limpiarFormulario();
+    function obtenerColorEstado(estado) {
+      switch (estado) {
+        case 'Ingresado': return 'text-zinc-700 bg-zinc-50';
+        case 'En diagnóstico': return 'text-blue-700 bg-blue-50';
+        case 'Esperando refacciones': return 'text-amber-700 bg-amber-50';
+        case 'En reparación': return 'text-purple-700 bg-purple-50';
+        case 'Terminado': return 'text-emerald-700 bg-emerald-50';
+        default: return 'text-zinc-700';
+      }
     }
-
-    function mostrarModalTrazabilidad() {
-      document.getElementById('modalTrazabilidad').classList.remove('hidden');
-    }
-    </script>
+  </script>
 </body>
 </html>
