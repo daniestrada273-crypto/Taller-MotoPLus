@@ -58,3 +58,5 @@ MotorPlus incluye los siguientes módulos y capacidades para la administración 
 
 \- Persistencia y respaldo: Esquema optimizado para la gestión eficiente de la información del taller.
 
+\###Control de Acceso y Autenticación por Roles
+\-Pantalla de inicio de sesión que permite autenticar diferentes tipos de usuarios (Recepcionista, Mecánico y Administrador), delimitando los permisos y módulos de trabajo correspondientes.
