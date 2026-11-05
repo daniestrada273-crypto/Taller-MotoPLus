@@ -23,7 +23,21 @@ app.post('/api/ordenes', async (req, res) => {
 
     const { cliente, vehiculo, inventario, orden } = req.body;
 
+
     // A. Insertar Cliente
+// Antes de insertar la orden, verifica si ya tiene una activa (que no esté Terminada)
+const ordenActiva = await client.query(
+  `SELECT folio FROM ORDEN_SERVICIO WHERE placas_vehiculo = $1 AND estatus != 'Terminado'`,
+  [vehiculo.placas]
+);
+
+if (ordenActiva.rows.length > 0) {
+  await client.query('ROLLBACK');
+  return res.status(400).json({ 
+    success: false, 
+    error: `El vehículo con placas ${vehiculo.placas} ya cuenta con una orden activa (${ordenActiva.rows[0].folio}).` 
+  });
+}
     const resCliente = await client.query(
       `INSERT INTO CLIENTE (nombre, apellidos, telefono_principal, telefono_secundario)
        VALUES ($1, $2, $3, $4) RETURNING id_cliente`,
@@ -91,10 +105,18 @@ app.patch('/api/ordenes/:folio/estatus', async (req, res) => {
   const { folio } = req.params;
   const { estatus } = req.body;
   try {
-    await pool.query('UPDATE ORDEN_SERVICIO SET estatus = $1 WHERE folio = $2', [estatus, folio]);
-    res.json({ success: true, message: 'Estado actualizado correctamente' });
+    const resultado = await pool.query(
+      'UPDATE ORDEN_SERVICIO SET estatus = $1 WHERE folio = $2 RETURNING *', 
+      [estatus, folio]
+    );
+    
+    if (resultado.rowCount > 0) {
+      res.json({ success: true, message: 'Estado actualizado correctamente' });
+    } else {
+      res.status(404).json({ success: false, error: 'Folio no encontrado' });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
