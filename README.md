@@ -59,4 +59,89 @@ MotorPlus incluye los siguientes módulos y capacidades para la administración 
 \- Persistencia y respaldo: Esquema optimizado para la gestión eficiente de la información del taller.
 
 \###Control de Acceso y Autenticación por Roles
-\-Pantalla de inicio de sesión que permite autenticar diferentes tipos de usuarios (Recepcionista, Mecánico y Administrador), delimitando los permisos y módulos de trabajo correspondientes.
+-Pantalla de inicio de sesión que permite autenticar diferentes tipos de usuarios (Recepcionista, Mecánico y Administrador), delimitando los permisos y módulos de trabajo correspondientes.
+
+
+
+
+
+\#TallerMP · Sistema de Gestión de Ordenes de Servicio (MotorPlus)
+
+
+
+Bienvenido al proyecto \*\*TallerMP\*\*. Este repositorio contiene el sistema web \*full-stack\* para el registro de vehículos, órdenes de servicio, inventario de recepción y control de acceso por roles (Recepcionista, Mecánico y Administrador).
+
+
+
+Sigue este paso a paso para clonar, configurar y ejecutar el proyecto en tu entorno local.
+
+
+
+\---
+
+
+
+\## 📋 Requisitos Previos
+
+
+
+Antes de comenzar, asegúrate de tener instalado el siguiente software en tu computadora:
+
+
+
+\* \*\*\[Node.js](https://nodejs.org/)\*\* (Versión 18.x o superior)
+
+\* \*\*\[PostgreSQL](https://www.postgresql.org/)\*\* (Servidor activo en el puerto local 5432)
+
+\* \*\*\[pgAdmin 4](https://www.pgadmin.org/)\*\* (O cualquier cliente de PostgreSQL de tu preferencia)
+
+\* \*\*\[Git](https://git-scm.com/)\*\*
+
+\* \*\*\[Visual Studio Code](https://code.visualstudio.com/)\*\* (Recomendado)
+
+
+
+\---
+
+
+
+\## Guía de Instalación Paso a Paso
+
+
+
+\### 1. Clonar el Repositorio
+
+Abre tu terminal o consola de comandos y clona el proyecto desde GitHub:
+
+
+
+```bash
+
+git clone \[https://github.com/tu-usuario/Taller-MotoPlus.git](https://github.com/tu-usuario/Taller-MotoPlus.git)
+
+cd Taller-MotoPlus
+
+\### 2. Crea una nueva base de datos llamada exactamente: Taller-MotorPlus-BD
+Ejecuta el script SQL principal del proyecto (ubicado en database/schema.sql
+\### 3. Instalar Dependencias del Backend
+Entra a la carpeta del servidor/backend e instala las librerías necesarias ejecutando:
+
+cd backend
+npm install
+\### 4. Configurar Variables de Entorno y Conexión
+Verifica que las credenciales de conexión en tu archivo server.js
+Host: localhost
+
+Puerto: 5432
+
+Base de datos: Taller-MotorPlus-BD
+
+Usuario: (Tu usuario de PostgreSQL, por ejemplo postgres)
+
+Contraseña: (Tu contraseña de PostgreSQL)
+\### 5. Iniciar el Servidor Backend
+Dentro de la carpeta backend, ejecuta:
+
+node server.js
+
+\### 6. Abre el archivo index.html
