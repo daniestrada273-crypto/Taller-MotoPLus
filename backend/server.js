@@ -10,7 +10,7 @@ app.use(cors());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'Taller_MotorPlus-BD',
+  database: 'Taller-MotorPlus-BD',
   password: 'Vestrani1', 
   port: 5432,
 });
