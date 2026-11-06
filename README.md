@@ -1,4 +1,7 @@
 # Taller-MotoPLus
+\## Integrantes
+Vargas Estrada Daniela Michelle
+Vázquez Mejía Anali
 
 Plataforma web para la administración de recepción vehicular, órdenes de servicio y control de reparaciones para talleres mecánicos.
 
