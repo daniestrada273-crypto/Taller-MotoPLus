@@ -1,33 +1,24 @@
 # Taller-MotoPLus
 \## Integrantes
 Vargas Estrada Daniela Michelle
-Vázquez Mejía Anali
 
 Plataforma web para la administración de recepción vehicular, órdenes de servicio y control de reparaciones para talleres mecánicos.
-
-
 
 \## Objetivo del Proyecto
 
 MotorPlus es una aplicación web diseñada para digitalizar y optimizar la administración de talleres automotrices. El sistema permite gestionar el registro de clientes, la información de sus vehículos y el seguimiento detallado de las órdenes de servicio en tiempo real.
 
 
-
 \## Usuarios
 
-\- \*\*Administrador / Recepción:\*\* Encargados de dar de alta clientes, registrar vehículos y crear o actualizar el estado de las órdenes de servicio.
+\- \*\* Recepción:\*\* Encargados de dar de alta clientes, registrar vehículos y crear o actualizar el estado de las órdenes de servicio.
 
 \- \*\*Técnicos / Mecánicos:\*\* Personal responsable de consultar las fallas reportadas y actualizar los avances en las reparaciones.
-
-
+\- \*\*Administrador: Encargado revisión de historial vehicular y consultar estado del vehiculo
 
 \## Funcionalidades del Sistema
 
-
-
 MotorPlus incluye los siguientes módulos y capacidades para la administración integral del taller:
-
-
 
 \### Gestión de Clientes
 
@@ -35,14 +26,11 @@ MotorPlus incluye los siguientes módulos y capacidades para la administración 
 
 \- Historial de servicios: Consulta detallada de todos los servicios realizados y vehículos asociados a cada cliente.
 
-
-
 \### Control de Vehículos
 
 \- Expediente vehicular: Registro de automóviles asociados a un cliente específico (marca, modelo, año y placas).
 
 \- Búsqueda rápida: Identificación de vehículos mediante número de placa o propietario.
-
 
 
 \### Órdenes de Servicio
@@ -54,7 +42,6 @@ MotorPlus incluye los siguientes módulos y capacidades para la administración 
 \- Asignación de diagnóstico: Registro de las fallas encontradas y el trabajo técnico a realizar.
 
 
-
 \### Base de Datos Relacional (PostgreSQL)
 
 \- Integridad de datos: Relaciones estructuradas entre clientes, vehículos y órdenes de trabajo mediante llaves foráneas.
@@ -64,33 +51,8 @@ MotorPlus incluye los siguientes módulos y capacidades para la administración 
 \###Control de Acceso y Autenticación por Roles
 -Pantalla de inicio de sesión que permite autenticar diferentes tipos de usuarios (Recepcionista, Mecánico y Administrador), delimitando los permisos y módulos de trabajo correspondientes.
 
-
-
-
-
-\#TallerMP · Sistema de Gestión de Ordenes de Servicio (MotorPlus)
-
-
-
-Bienvenido al proyecto \*\*TallerMP\*\*. Este repositorio contiene el sistema web \*full-stack\* para el registro de vehículos, órdenes de servicio, inventario de recepción y control de acceso por roles (Recepcionista, Mecánico y Administrador).
-
-
-
-Sigue este paso a paso para clonar, configurar y ejecutar el proyecto en tu entorno local.
-
-
-
-\---
-
-
-
 \## 📋 Requisitos Previos
-
-
-
-Antes de comenzar, asegúrate de tener instalado el siguiente software en tu computadora:
-
-
+Antes de comenzar, asegúrate de tener instalado el siguiente software en tu computadora
 
 \* \*\*\[Node.js](https://nodejs.org/)\*\* (Versión 18.x o superior)
 
@@ -100,51 +62,40 @@ Antes de comenzar, asegúrate de tener instalado el siguiente software en tu com
 
 \* \*\*\[Git](https://git-scm.com/)\*\*
 
-\* \*\*\[Visual Studio Code](https://code.visualstudio.com/)\*\* (Recomendado)
-
-
-
-\---
-
+\* \*\*\[Visual Studio Code]\*\* (Recomendado)
 
 
 \## Guía de Instalación Paso a Paso
 
-
-
 \### 1. Clonar el Repositorio
 
-Abre tu terminal o consola de comandos y clona el proyecto desde GitHub:
+\-Abre tu terminal o consola de comandos y clona el proyecto desde GitHub:
 
+\-git clone https://github.com/daniestrada273-crypto/Taller-MotoPLus
 
-
-```bash
-
-git clone \[https://github.com/tu-usuario/Taller-MotoPlus.git](https://github.com/tu-usuario/Taller-MotoPlus.git)
-
-cd Taller-MotoPlus
+\-cd Taller-MotoPlus
 
 \### 2. Crea una nueva base de datos llamada exactamente: Taller-MotorPlus-BD
-Ejecuta el script SQL principal del proyecto (ubicado en database/schema.sql
+\-Ejecuta el script SQL principal del proyecto (ubicado en database/schema.sql
 \### 3. Instalar Dependencias del Backend
-Entra a la carpeta del servidor/backend e instala las librerías necesarias ejecutando:
+\-Entra a la carpeta del servidor/backend e instala las librerías necesarias ejecutando:
 
-cd backend
-npm install
+\- cd backend
+\- npm install
 \### 4. Configurar Variables de Entorno y Conexión
-Verifica que las credenciales de conexión en tu archivo server.js
-Host: localhost
+\- Verifica que las credenciales de conexión en tu archivo server.js
+\- Host: localhost
 
-Puerto: 5432
+\- Puerto: 5432
 
-Base de datos: Taller-MotorPlus-BD
+\-Base de datos: Taller-MotorPlus-BD
 
-Usuario: (Tu usuario de PostgreSQL, por ejemplo postgres)
+\-Usuario: (Tu usuario de PostgreSQL, por ejemplo postgres)
 
-Contraseña: (Tu contraseña de PostgreSQL)
+\-Contraseña: (Tu contraseña de PostgreSQL)
 \### 5. Iniciar el Servidor Backend
-Dentro de la carpeta backend, ejecuta:
-
-node server.js
+\-Dentro de la carpeta backend, ejecuta:
+\-node server.js
 
 \### 6. Abre el archivo index.html
+\- LISTOOO
