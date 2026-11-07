@@ -1,101 +1,156 @@
-# Taller-MotoPLus
-\## Integrantes
-Vargas Estrada Daniela Michelle
 
-Plataforma web para la administración de recepción vehicular, órdenes de servicio y control de reparaciones para talleres mecánicos.
+# TallerMP - Sistema de Gestión de Taller Automotriz
 
-\## Objetivo del Proyecto
+## Bloque 1. Información general del proyecto
 
-MotorPlus es una aplicación web diseñada para digitalizar y optimizar la administración de talleres automotrices. El sistema permite gestionar el registro de clientes, la información de sus vehículos y el seguimiento detallado de las órdenes de servicio en tiempo real.
+### Propósito
 
+Sistema web *full-stack* para la digitalización y gestión del proceso de admisión de vehículos, recepción física, generación de órdenes de servicio y control de acceso por roles en un taller automotriz.
 
-\## Usuarios
+### Integrantes
 
-\- \*\* Recepción:\*\* Encargados de dar de alta clientes, registrar vehículos y crear o actualizar el estado de las órdenes de servicio.
+- Daniela Michelle Vargas Estrada
+- [Nombre de la segunda integrante]
 
-\- \*\*Técnicos / Mecánicos:\*\* Personal responsable de consultar las fallas reportadas y actualizar los avances en las reparaciones.
-\- \*\*Administrador: Encargado revisión de historial vehicular y consultar estado del vehiculo
+### Stack tecnológico y versiones
 
-\## Funcionalidades del Sistema
+| Elemento | Tecnología |
+|---|---|
+| Backend | Node.js (v18+) y Express.js |
+| Base de datos | PostgreSQL (`Taller-MotorPlus-BD`) |
+| Controlador de BD | Node-postgres (`pg` v8.x) |
+| Frontend | HTML5, CSS3, Tailwind CSS y JavaScript nativo |
+| Entorno de desarrollo | Visual Studio Code |
+| Administración de BD | pgAdmin 4 |
+| Control de versiones | Git y GitHub |
 
-MotorPlus incluye los siguientes módulos y capacidades para la administración integral del taller:
+### Estado de E1
 
-\### Gestión de Clientes
+Entrega 1 funcional con backend activo en Node.js, interfaz web responsiva, conexión a PostgreSQL y persistencia relacional de datos para órdenes de servicio y autenticación por roles.
 
-\- Registro y edición: Alta de clientes con datos de contacto (nombre, teléfono, correo).
+---
 
-\- Historial de servicios: Consulta detallada de todos los servicios realizados y vehículos asociados a cada cliente.
+## Bloque 2. Instalación y ejecución del proyecto
 
-\### Control de Vehículos
+### Requisitos previos
 
-\- Expediente vehicular: Registro de automóviles asociados a un cliente específico (marca, modelo, año y placas).
+- Node.js instalado.
+- PostgreSQL instalado.
+- pgAdmin 4.
+- Git instalado.
+- Visual Studio Code.
 
-\- Búsqueda rápida: Identificación de vehículos mediante número de placa o propietario.
+### Pasos y comandos para la ejecución
 
+**1. Clonar el repositorio**
 
-\### Órdenes de Servicio
+```bash
+git clone https://github.com/tu-usuario/Taller-MotoPlus.git
+cd Taller-MotoPlus
+```
 
-\- Creación de órdenes: Registro de la recepción del vehículo con la descripción del problema reportado.
+**2. Instalar las dependencias del backend**
 
-\- Seguimiento de estados: Control del flujo de trabajo (Pendiente, En Proceso, Diagnosticado, Finalizado, Entregado).
+Ingresar a la carpeta del backend:
 
-\- Asignación de diagnóstico: Registro de las fallas encontradas y el trabajo técnico a realizar.
+```bash
+cd backend
+```
 
+Instalar las dependencias:
 
-\### Base de Datos Relacional (PostgreSQL)
+```bash
+npm install
+```
 
-\- Integridad de datos: Relaciones estructuradas entre clientes, vehículos y órdenes de trabajo mediante llaves foráneas.
+**3. Crear y preparar la base de datos**
 
-\- Persistencia y respaldo: Esquema optimizado para la gestión eficiente de la información del taller.
+- Crear la base de datos `Taller-MotorPlus-BD` desde pgAdmin 4 o mediante la terminal de PostgreSQL.
+- Abrir la herramienta *Query Tool* de pgAdmin.
+- Abrir y ejecutar el archivo `schema.sql`, ubicado en la raíz del repositorio.
+- Verificar la creación de las tablas y sus relaciones.
 
-\###Control de Acceso y Autenticación por Roles
--Pantalla de inicio de sesión que permite autenticar diferentes tipos de usuarios (Recepcionista, Mecánico y Administrador), delimitando los permisos y módulos de trabajo correspondientes.
+Tablas principales:
 
-\## 📋 Requisitos Previos
-Antes de comenzar, asegúrate de tener instalado el siguiente software en tu computadora
+- CLIENTE
+- VEHICULO
+- INVENTARIO_RECEPCION
+- ORDEN_SERVICIO
 
-\* \*\*\[Node.js](https://nodejs.org/)\*\* (Versión 18.x o superior)
+**4. Configurar los parámetros de conexión**
 
-\* \*\*\[PostgreSQL](https://www.postgresql.org/)\*\* (Servidor activo en el puerto local 5432)
+La configuración de conexión a PostgreSQL se encuentra definida directamente en el archivo `server.js`.
 
-\* \*\*\[pgAdmin 4](https://www.pgadmin.org/)\*\* (O cualquier cliente de PostgreSQL de tu preferencia)
+Parámetros de conexión:
 
-\* \*\*\[Git](https://git-scm.com/)\*\*
+- Host: `localhost`
+- Puerto: `5432`
+- Base de datos: `Taller-MotorPlus-BD`
+- Usuario: Usuario configurado en PostgreSQL.
+- Contraseña: Contraseña correspondiente al usuario.
 
-\* \*\*\[Visual Studio Code]\*\* (Recomendado)
+**5. Iniciar el servidor backend**
 
+Desde la carpeta `backend`, ejecutar:
 
-\## Guía de Instalación Paso a Paso
+```bash
+node server.js
+```
 
-\### 1. Clonar el Repositorio
+El servidor iniciará en el puerto local configurado, por ejemplo:
 
-\-Abre tu terminal o consola de comandos y clona el proyecto desde GitHub:
+```text
+http://localhost:3000
+```
 
-\-git clone https://github.com/daniestrada273-crypto/Taller-MotoPLus
+---
 
-\-cd Taller-MotoPlus
+## Bloque 3. Demostración técnica y datos de prueba
 
-\### 2. Crea una nueva base de datos llamada exactamente: Taller-MotorPlus-BD
-\-Ejecuta el script SQL principal del proyecto (ubicado en database/schema.sql
-\### 3. Instalar Dependencias del Backend
-\-Entra a la carpeta del servidor/backend e instala las librerías necesarias ejecutando:
+### Acceso a la aplicación
 
-\- cd backend
-\- npm install
-\### 4. Configurar Variables de Entorno y Conexión
-\- Verifica que las credenciales de conexión en tu archivo server.js
-\- Host: localhost
+1. Abrir el archivo `index.html` ubicado en la carpeta del frontend.
+2. También se puede utilizar la extensión *Live Server* de Visual Studio Code para visualizar la interfaz en el navegador.
 
-\- Puerto: 5432
+### Autenticación
 
-\-Base de datos: Taller-MotorPlus-BD
+Ingresar al sistema utilizando las credenciales y los roles de prueba disponibles, por ejemplo:
 
-\-Usuario: (Tu usuario de PostgreSQL, por ejemplo postgres)
+- Recepcionista.
+- Mecánico.
 
-\-Contraseña: (Tu contraseña de PostgreSQL)
-\### 5. Iniciar el Servidor Backend
-\-Dentro de la carpeta backend, ejecuta:
-\-node server.js
+### Carga e inserción de datos de prueba
 
-\### 6. Abre el archivo index.html
-\- LISTOOO
+1. Completar el formulario de recepción vehicular con datos ficticios.
+2. Registrar la información del cliente:
+   - Nombre.
+   - Número de teléfono.
+3. Registrar la información del vehículo:
+   - Marca.
+   - Modelo.
+   - Placas.
+4. Introducir la descripción de la falla reportada.
+5. Hacer clic en el botón **Registrar Orden de Servicio** para enviar la petición HTTP POST al backend.
+
+### Comprobación de persistencia
+
+Para verificar que los datos fueron almacenados correctamente:
+
+1. Abrir pgAdmin 4.
+2. Conectarse a la base de datos `Taller-MotorPlus-BD`.
+3. Abrir *Query Tool*.
+4. Ejecutar la siguiente consulta SQL:
+
+```sql
+SELECT * FROM orden_servicio;
+```
+
+5. Comprobar que los registros enviados desde la interfaz web aparezcan correctamente en la base de datos.
+
+---
+
+## Control de versiones
+
+El proyecto utiliza Git y GitHub para administrar el código fuente, registrar cambios y facilitar la colaboración entre los integrantes del equipo.
+
+La carpeta `node_modules/` se encuentra excluida del seguimiento de Git mediante el archivo `.gitignore`. Cada integrante puede instalar las dependencias localmente ejecutando `npm install` dentro de la carpeta `backend`.
