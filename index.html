@@ -11,8 +11,6 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
 
-
-
     /* Pines de inspección de carrocería */
     .damage-pin {
       position: absolute;
@@ -162,31 +160,12 @@
         </div>
 
         <div class="flex items-center space-x-2">
-          <button onclick="cargarVehiculoDemo()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-1 rounded-md transition shadow flex items-center gap-1">
-            <span>⚡ Demo: Placa MOR-452-A</span>
-          </button>
           <button onclick="limpiarFormularioCU01()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1 rounded-md border border-zinc-700 transition">
-            Limpiar
+            Limpiar campos
           </button>
         </div>
       </div>
     </section>
-
-    <!-- ALERTA DINÁMICA: GARANTÍA ACTIVA / SERVICIO RECIENTE -->
-    <div id="alertaGarantia" class="hidden max-w-7xl mx-auto w-full px-6 pt-4">
-      <div class="bg-amber-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm flex items-start justify-between">
-        <div class="flex items-start space-x-3">
-          <span class="text-xl">⚠️</span>
-          <div>
-            <h4 class="font-bold text-zinc-900 text-xs">Alerta de Garantía Previa</h4>
-            <p class="text-xs text-zinc-700 mt-0.5">
-              La unidad <strong>Nissan Versa (MOR-452-A)</strong> concluyó un servicio hace 12 días por "Bomba de Gasolina". El asesor debe verificar si la anomalía reportada ampara garantía sin costo para el cliente.
-            </p>
-          </div>
-        </div>
-        <button onclick="document.getElementById('alertaGarantia').classList.add('hidden')" class="text-zinc-500 hover:text-black font-bold">✕</button>
-      </div>
-    </div>
 
     <!-- ALERTA DE ERROR: CAMPOS FALTANTES -->
     <div id="alertaError" class="hidden max-w-7xl mx-auto w-full px-6 pt-4">
@@ -216,7 +195,7 @@
             <p class="text-xs text-zinc-500">Ingrese matrícula o serie para recuperar datos o abrir un nuevo registro de servicio.</p>
           </div>
           <div class="flex items-center gap-2">
-            <input type="text" id="buscarPlacaInput" placeholder="Ej. MOR-452-A..." class="wf-input uppercase tracking-wider text-xs font-semibold px-3 py-2 rounded-lg border border-zinc-300 w-48 sm:w-60 focus:outline-none focus:border-blue-600">
+            <input type="text" id="buscarPlacaInput" placeholder="Ej. UDR-456-D..." class="wf-input uppercase tracking-wider text-xs font-semibold px-3 py-2 rounded-lg border border-zinc-300 w-48 sm:w-60 focus:outline-none focus:border-blue-600">
             <button onclick="buscarPlacaManual()" class="wf-btn-action bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow">
               Buscar
             </button>
@@ -237,15 +216,15 @@
           <div class="grid grid-cols-2 gap-3 text-xs">
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Nombre(s) <span class="text-orange-600">*</span></label>
-              <input type="text" id="cli_nombre" placeholder="Ej. Carlos" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+              <input type="text" id="cli_nombre" value="Jacqueline" placeholder="Ej. Jacqueline" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Apellidos <span class="text-orange-600">*</span></label>
-              <input type="text" id="cli_apellidos" placeholder="Mendoza Morales" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+              <input type="text" id="cli_apellidos" value="Vargas Estrada" placeholder="Vargas Estrada" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Teléfono Principal <span class="text-orange-600">*</span></label>
-              <input type="tel" id="cli_tel1" placeholder="777-123-4567" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+              <input type="tel" id="cli_tel1" value="777-987-6543" placeholder="777-123-4567" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Teléfono Respaldo</label>
@@ -264,27 +243,27 @@
           <div class="grid grid-cols-3 gap-3 text-xs">
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Placas <span class="text-orange-600">*</span></label>
-              <input type="text" id="veh_placas" placeholder="PXZ-881-C" class="wf-input uppercase font-bold text-blue-700 w-full p-2 rounded-lg border border-zinc-300">
+              <input type="text" id="veh_placas" value="UDR-456-D" placeholder="UDR-456-D" class="wf-input uppercase font-bold text-blue-700 w-full p-2 rounded-lg border border-zinc-300">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Marca <span class="text-orange-600">*</span></label>
-              <input type="text" id="veh_marca" placeholder="Nissan" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+              <input type="text" id="veh_marca" value="Chevrolet" placeholder="Chevrolet" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Modelo <span class="text-orange-600">*</span></label>
-              <input type="text" id="veh_modelo" placeholder="Versa" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+              <input type="text" id="veh_modelo" value="Onix" placeholder="Onix" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Año <span class="text-orange-600">*</span></label>
-              <input type="number" id="veh_anio" placeholder="2021" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+              <input type="number" id="veh_anio" value="2022" placeholder="2022" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Color <span class="text-orange-600">*</span></label>
-              <input type="text" id="veh_color" placeholder="Gris Plata" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
+              <input type="text" id="veh_color" value="Blanco" placeholder="Blanco" class="wf-input w-full p-2 rounded-lg border border-zinc-300">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Número de Serie (VIN)</label>
-              <input type="text" id="veh_vin" placeholder="3N1CN7AP..." class="wf-input uppercase w-full p-2 rounded-lg border border-zinc-300">
+              <input type="text" id="veh_vin" placeholder="1G1JB5..." class="wf-input uppercase w-full p-2 rounded-lg border border-zinc-300">
             </div>
           </div>
         </div>
@@ -398,7 +377,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div class="md:col-span-2">
             <label class="block font-semibold text-zinc-700 mb-1">Falla Reportada por el Cliente <span class="text-orange-600">*</span></label>
-            <textarea id="ord_falla" rows="3" placeholder="Ej. El cliente manifiesta rechinido al frenar y olor a combustible al detenerse..." class="wf-input w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600"></textarea>
+            <textarea id="ord_falla" rows="3" placeholder="Ej. Mantenimiento general y revisión de suspensión..." class="wf-input w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">Revisión de mantenimiento preventivo y afinación general.</textarea>
           </div>
           <div class="space-y-3">
             <div>
@@ -466,15 +445,15 @@
       <div class="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200 text-left text-xs space-y-1.5 font-mono">
         <div class="flex justify-between border-b pb-1 text-black font-bold">
           <span>FOLIO:</span>
-          <span id="ticketFolio" class="text-blue-700 font-black">MP-2026-1042</span>
+          <span id="ticketFolio" class="text-blue-700 font-black">MP-2026-6409</span>
         </div>
         <div class="flex justify-between pt-1">
           <span class="text-zinc-500">Cliente:</span>
-          <span id="ticketCliente" class="font-semibold text-zinc-800">Carlos Mendoza</span>
+          <span id="ticketCliente" class="font-semibold text-zinc-800">Jacqueline Vargas Estrada</span>
         </div>
         <div class="flex justify-between">
           <span class="text-zinc-500">Vehículo:</span>
-          <span id="ticketVehiculo" class="font-semibold text-zinc-800">Nissan Versa</span>
+          <span id="ticketVehiculo" class="font-semibold text-zinc-800">Chevrolet Onix (UDR-456-D)</span>
         </div>
         <div class="flex justify-between">
           <span class="text-zinc-500">Combustible:</span>
@@ -482,7 +461,7 @@
         </div>
         <div class="flex justify-between">
           <span class="text-zinc-500">Daños:</span>
-          <span id="ticketDanios" class="font-semibold text-zinc-800">2 marcas</span>
+          <span id="ticketDanios" class="font-semibold text-zinc-800">0 marcas en carrocería</span>
         </div>
       </div>
 
@@ -509,18 +488,18 @@
     let listaDanios = [];
     let esModoWireframe = false;
 
-    // Lista de órdenes activas (Persistencia en memoria entre recepción y bahía)
+    // Lista inicial de órdenes actualizadas con Jacqueline Vargas y Chevrolet Onix
     let ordenesActivas = [
       {
         id: 1,
-        folio: 'MP-2026-0981',
-        placas: 'MOR-452-A',
-        auto: 'Nissan Versa 2021',
-        cliente: 'Carlos Mendoza',
+        folio: 'MP-2026-6409',
+        placas: 'UDR-456-D',
+        auto: 'Chevrolet Onix 2022',
+        cliente: 'Jacqueline Vargas Estrada',
         mecanico: 'Roberto Sánchez',
-        falla: 'Zumbido en tren delantero y cascabeleo',
+        falla: 'Revisión de mantenimiento preventivo y afinación general.',
         estado: 'En diagnóstico',
-        hora: '08:30 AM',
+        hora: '10:00 AM',
         bahia: 'Elevador 1'
       },
       {
@@ -644,35 +623,11 @@
       renderizarPines();
     }
 
-    // 5. Cargar Datos Demo y Búsqueda
-    function cargarVehiculoDemo() {
-      document.getElementById('buscarPlacaInput').value = "MOR-452-A";
-      document.getElementById('cli_nombre').value = "Carlos";
-      document.getElementById('cli_apellidos').value = "Mendoza Morales";
-      document.getElementById('cli_tel1').value = "777-456-7890";
-      document.getElementById('cli_tel2').value = "777-111-2233";
-      document.getElementById('veh_placas').value = "MOR-452-A";
-      document.getElementById('veh_marca').value = "Nissan";
-      document.getElementById('veh_modelo').value = "Versa";
-      document.getElementById('veh_anio').value = "2021";
-      document.getElementById('veh_color').value = "Gris Plata";
-      document.getElementById('veh_vin').value = "3N1CN7AP4ML998214";
-      document.getElementById('inv_gasolina').value = "1/2";
-      document.getElementById('ord_falla').value = "Zumbido fuerte en el tren delantero al girar a la derecha.";
-
-      listaDanios = [
-        { id: 1, num: 1, tipo: 'golpe', x: 45, y: 110 },
-        { id: 2, num: 2, tipo: 'rayon', x: 115, y: 220 }
-      ];
-      renderizarPines();
-      document.getElementById('alertaGarantia').classList.remove('hidden');
-      document.getElementById('alertaError').classList.add('hidden');
-    }
-
+    // 5. Búsqueda Manual
     function buscarPlacaManual() {
       const val = document.getElementById('buscarPlacaInput').value.trim().toUpperCase();
-      if (val === "MOR-452-A") {
-        cargarVehiculoDemo();
+      if (val === "UDR-456-D") {
+        alert("Unidad localizada correctamente en el sistema.");
       } else if (!val) {
         alert("Escriba una placa válida.");
       } else {
@@ -696,71 +651,66 @@
       document.getElementById('inv_gasolina').value = '';
       document.getElementById('ord_falla').value = '';
       limpiarDanios();
-      document.getElementById('alertaGarantia').classList.add('hidden');
       document.getElementById('alertaError').classList.add('hidden');
     }
 
     // 6. Registro de la Orden y Enlace a Bahías
+    async function procesarRegistroOrden() {
+      const nombre = document.getElementById('cli_nombre').value.trim();
+      const apellidos = document.getElementById('cli_apellidos').value.trim();
+      const tel1 = document.getElementById('cli_tel1').value.trim();
+      const tel2 = document.getElementById('cli_tel2').value.trim();
+      const placas = document.getElementById('veh_placas').value.trim();
+      const marca = document.getElementById('veh_marca').value.trim();
+      const modelo = document.getElementById('veh_modelo').value.trim();
+      const anio = document.getElementById('veh_anio').value;
+      const color = document.getElementById('veh_color').value;
+      const vin = document.getElementById('veh_vin').value;
+      const gasolina = document.getElementById('inv_gasolina').value;
+      const falla = document.getElementById('ord_falla').value.trim();
+      const mecanicoObj = document.getElementById('ord_mecanico');
+      const mecanico = mecanicoObj.options[mecanicoObj.selectedIndex].text;
 
-async function procesarRegistroOrden() {
-  const nombre = document.getElementById('cli_nombre').value.trim();
-  const apellidos = document.getElementById('cli_apellidos').value.trim();
-  const tel1 = document.getElementById('cli_tel1').value.trim();
-  const tel2 = document.getElementById('cli_tel2').value.trim();
-  const placas = document.getElementById('veh_placas').value.trim();
-  const marca = document.getElementById('veh_marca').value.trim();
-  const modelo = document.getElementById('veh_modelo').value.trim();
-  const anio = document.getElementById('veh_anio').value;
-  const color = document.getElementById('veh_color').value;
-  const vin = document.getElementById('veh_vin').value;
-  const gasolina = document.getElementById('inv_gasolina').value;
-  const falla = document.getElementById('ord_falla').value.trim();
-  const mecanicoObj = document.getElementById('ord_mecanico');
-  const mecanico = mecanicoObj.options[mecanicoObj.selectedIndex].text;
+      if (!nombre || !tel1 || !placas || !gasolina || !falla) {
+        document.getElementById('alertaError').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
 
-  if (!nombre || !tel1 || !placas || !gasolina || !falla) {
-    document.getElementById('alertaError').classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
+      document.getElementById('alertaError').classList.add('hidden');
 
-  document.getElementById('alertaError').classList.add('hidden');
+      const payload = {
+        cliente: { nombre, apellidos, telefono1: tel1, telefono2: tel2 },
+        vehiculo: { placas: placas.toUpperCase(), marca, modelo, anio: parseInt(anio) || 2022, color, vin },
+        inventario: { combustible: gasolina, danos: listaDanios },
+        orden: { falla, mecanico, responsable: usuarioActivo.nombre }
+      };
 
-  // Estructura de datos para enviar a la BD
-  const payload = {
-    cliente: { nombre, apellidos, telefono1: tel1, telefono2: tel2 },
-    vehiculo: { placas: placas.toUpperCase(), marca, modelo, anio: parseInt(anio) || 2021, color, vin },
-    inventario: { combustible: gasolina, danos: listaDanios },
-    orden: { falla, mecanico, responsable: usuarioActivo.nombre }
-  };
+      try {
+        const response = await fetch('http://localhost:3000/api/ordenes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-  try {
-    // Petición al backend en PostgreSQL
-    const response = await fetch('http://localhost:3000/api/ordenes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+        const data = await response.json();
 
-    const data = await response.json();
+        if (data.success) {
+          document.getElementById('ticketFolio').innerText = data.folio;
+          document.getElementById('ticketCliente').innerText = `${nombre} ${apellidos}`;
+          document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas.toUpperCase()})`;
+          document.getElementById('ticketGasolina').innerText = gasolina;
+          document.getElementById('ticketDanios').innerText = `${listaDanios.length} marcas en carrocería`;
 
-    if (data.success) {
-      // Llenar Modal de Comprobante
-      document.getElementById('ticketFolio').innerText = data.folio;
-      document.getElementById('ticketCliente').innerText = `${nombre} ${apellidos}`;
-      document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas.toUpperCase()})`;
-      document.getElementById('ticketGasolina').innerText = gasolina;
-      document.getElementById('ticketDanios').innerText = `${listaDanios.length} marcas en carrocería`;
-
-      document.getElementById('modalTicket').classList.remove('hidden');
-    } else {
-      alert("Error al guardar en la base de datos: " + data.error);
+          document.getElementById('modalTicket').classList.remove('hidden');
+        } else {
+          alert("Error al guardar en la base de datos: " + data.error);
+        }
+      } catch (err) {
+        console.error("Error de conexión:", err);
+        alert("No se pudo conectar con el servidor backend en localhost:3000. Asegúrate de ejecutar node server.js");
+      }
     }
-  } catch (err) {
-    console.error("Error de conexión:", err);
-    alert("No se pudo conectar con el servidor backend en localhost:3000. Asegúrate de ejecutar node server.js");
-  }
-}
 
     function cerrarTicket() {
       document.getElementById('modalTicket').classList.add('hidden');
@@ -773,75 +723,73 @@ async function procesarRegistroOrden() {
     }
 
     // 7. Renderizado del Tablero de Bahías
-   async function renderizarTarjetasBahia() {
-  try {
-    const response = await fetch('http://localhost:3000/api/ordenes');
-    ordenesActivas = await response.json(); 
-    
-    const contenedor = document.getElementById('contenedorTarjetasBahia');
-    contenedor.innerHTML = ordenesActivas.map(ord => `
-      <div class="wf-card bg-white p-5 rounded-2xl border border-zinc-200 shadow-md flex flex-col justify-between space-y-4">
-        <div>
-          <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
-            <span class="font-mono font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${ord.folio}</span>
-            <span class="text-[10px] text-zinc-400 font-mono">${new Date(ord.hora).toLocaleTimeString()}</span>
+    async function renderizarTarjetasBahia() {
+      try {
+        const response = await fetch('http://localhost:3000/api/ordenes');
+        ordenesActivas = await response.json(); 
+        
+        const contenedor = document.getElementById('contenedorTarjetasBahia');
+        contenedor.innerHTML = ordenesActivas.map(ord => `
+          <div class="wf-card bg-white p-5 rounded-2xl border border-zinc-200 shadow-md flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
+                <span class="font-mono font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${ord.folio}</span>
+                <span class="text-[10px] text-zinc-400 font-mono">${new Date(ord.hora).toLocaleTimeString()}</span>
+              </div>
+              <div class="mt-3">
+                <h4 class="text-sm font-black text-zinc-900">${ord.auto}</h4>
+                <p class="text-xs font-mono font-bold text-orange-600">${ord.placas}</p>
+                <p class="text-xs text-zinc-500 mt-1">Cliente: <strong class="text-zinc-800">${ord.cliente}</strong></p>
+              </div>
+              <div class="mt-3 p-2.5 bg-zinc-50 rounded-xl border border-zinc-200 text-xs">
+                <span class="block text-[10px] font-bold text-zinc-400 uppercase">Falla Asignada:</span>
+                <p class="text-zinc-700 line-clamp-2 mt-0.5">${ord.falla}</p>
+              </div>
+            </div>
+            <div class="space-y-3 pt-2 border-t border-zinc-100 text-xs">
+              <div>
+                <label class="block text-[11px] font-bold text-zinc-700 mb-1">Fase Operativa (Actualizar Estado):</label>
+                <select onchange="cambiarEstadoOrden('${ord.folio}', this.value)" class="wf-input w-full p-2 rounded-lg border border-zinc-300 font-bold ${obtenerColorEstado(ord.estado)}">
+                  <option value="Ingresado" ${ord.estado === 'Ingresado' ? 'selected' : ''}>Ingresado (Recepción)</option>
+                  <option value="En diagnóstico" ${ord.estado === 'En diagnóstico' ? 'selected' : ''}>En diagnóstico</option>
+                  <option value="Esperando refacciones" ${ord.estado === 'Esperando refacciones' ? 'selected' : ''}>Esperando refacciones</option>
+                  <option value="En reparación" ${ord.estado === 'En reparación' ? 'selected' : ''}>En reparación</option>
+                  <option value="Terminado" ${ord.estado === 'Terminado' ? 'selected' : ''}>Terminado (Listo)</option>
+                </select>
+              </div>
+              <div class="flex justify-between items-center text-[10px] text-zinc-400 font-mono">
+                <span>Resp: ${ord.mecanico}</span>
+              </div>
+            </div>
           </div>
-          <div class="mt-3">
-            <h4 class="text-sm font-black text-zinc-900">${ord.auto}</h4>
-            <p class="text-xs font-mono font-bold text-orange-600">${ord.placas}</p>
-            <p class="text-xs text-zinc-500 mt-1">Cliente: <strong class="text-zinc-800">${ord.cliente}</strong></p>
-          </div>
-          <div class="mt-3 p-2.5 bg-zinc-50 rounded-xl border border-zinc-200 text-xs">
-            <span class="block text-[10px] font-bold text-zinc-400 uppercase">Falla Asignada:</span>
-            <p class="text-zinc-700 line-clamp-2 mt-0.5">${ord.falla}</p>
-          </div>
-        </div>
-        <div class="space-y-3 pt-2 border-t border-zinc-100 text-xs">
-          <div>
-            <label class="block text-[11px] font-bold text-zinc-700 mb-1">Fase Operativa (Actualizar Estado):</label>
-            <!-- IMPORTANTE: Pasamos '${ord.folio}' como primer parámetro -->
-            <select onchange="cambiarEstadoOrden('${ord.folio}', this.value)" class="wf-input w-full p-2 rounded-lg border border-zinc-300 font-bold ${obtenerColorEstado(ord.estado)}">
-              <option value="Ingresado" ${ord.estado === 'Ingresado' ? 'selected' : ''}>Ingresado (Recepción)</option>
-              <option value="En diagnóstico" ${ord.estado === 'En diagnóstico' ? 'selected' : ''}>En diagnóstico</option>
-              <option value="Esperando refacciones" ${ord.estado === 'Esperando refacciones' ? 'selected' : ''}>Esperando refacciones</option>
-              <option value="En reparación" ${ord.estado === 'En reparación' ? 'selected' : ''}>En reparación</option>
-              <option value="Terminado" ${ord.estado === 'Terminado' ? 'selected' : ''}>Terminado (Listo)</option>
-            </select>
-          </div>
-          <div class="flex justify-between items-center text-[10px] text-zinc-400 font-mono">
-            <span>Resp: ${ord.mecanico}</span>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  } catch (err) {
-    console.error("Error al obtener las órdenes de la BD:", err);
-  }
-}
+        `).join('');
+      } catch (err) {
+        console.error("Error al obtener las órdenes de la BD:", err);
+      }
+    }
 
     async function cambiarEstadoOrden(folio, nuevoEstado) {
-  try {
-    const response = await fetch(`http://localhost:3000/api/ordenes/${folio}/estatus`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estatus: nuevoEstado })
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      if (nuevoEstado === 'Terminado') {
-        alert(`🔔 La unidad con folio ${folio} ha sido marcada como LISTA para entrega.`);
+      try {
+        const response = await fetch(`http://localhost:3000/api/ordenes/${folio}/estatus`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estatus: nuevoEstado })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          if (nuevoEstado === 'Terminado') {
+            alert(`🔔 La unidad con folio ${folio} ha sido marcada como LISTA para entrega.`);
+          }
+          renderizarTarjetasBahia(); 
+        } else {
+          alert("Error al actualizar el estatus en la base de datos.");
+        }
+      } catch (err) {
+        console.error("Error de red al actualizar estatus:", err);
       }
-      // Vuelve a consultar la base de datos y redibuja las tarjetas con el estatus actualizado
-      renderizarTarjetasBahia(); 
-    } else {
-      alert("Error al actualizar el estatus en la base de datos.");
     }
-  } catch (err) {
-    console.error("Error de red al actualizar estatus:", err);
-  }
-}
 
     function obtenerColorEstado(estado) {
       switch (estado) {
