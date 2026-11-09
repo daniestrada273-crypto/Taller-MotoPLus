@@ -55,30 +55,34 @@
 
       <div class="space-y-2">
         <label class="block text-xs font-semibold text-zinc-300">Seleccionar Perfil de Acceso:</label>
-        <div class="grid grid-cols-3 gap-2 text-xs">
-          <button type="button" onclick="seleccionarRol('Recepcionista', 'Daniela Vargas', 'recepcion@motorplus.com')" id="rolBtn_Recepcionista" class="rol-btn border border-orange-500 bg-orange-500/10 text-orange-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition">
+        <div class="grid grid-cols-4 gap-1.5 text-xs">
+          <button type="button" onclick="seleccionarRol('Recepcionista', 'Daniela Vargas', 'recepcion@motorplus.com')" id="rolBtn_Recepcionista" class="rol-btn border border-orange-500 bg-orange-500/10 text-orange-400 py-2.5 px-1 rounded-xl font-bold flex flex-col items-center gap-1 transition">
             <span class="text-base">📋</span>
-            <span>Recepción</span>
+            <span class="text-[10px]">Recepción</span>
           </button>
-          <button type="button" onclick="seleccionarRol('Mecanico', 'Roberto Sánchez', 'mecanico@motorplus.com')" id="rolBtn_Mecanico" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
+          <button type="button" onclick="seleccionarRol('Mecanico', 'Roberto Sánchez', 'mecanico@motorplus.com')" id="rolBtn_Mecanico" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-1 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
             <span class="text-base">🔧</span>
-            <span>Mecánico</span>
+            <span class="text-[10px]">Mecánico</span>
           </button>
-          <button type="button" onclick="seleccionarRol('Administrador', 'Ing. Vargas Dueño', 'admin@motorplus.com')" id="rolBtn_Administrador" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
+          <button type="button" onclick="seleccionarRol('Cliente', 'Juan Perez', 'UDR-456-D')" id="rolBtn_Cliente" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-1 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
+            <span class="text-base">👤</span>
+            <span class="text-[10px]">Cliente</span>
+          </button>
+          <button type="button" onclick="seleccionarRol('Administrador', 'Ing. Vargas Dueño', 'admin@motorplus.com')" id="rolBtn_Administrador" class="rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-1 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700">
             <span class="text-base">🛡️</span>
-            <span>Admin</span>
+            <span class="text-[10px]">Admin</span>
           </button>
         </div>
       </div>
 
       <form onsubmit="iniciarSesion(event)" class="space-y-4 text-xs">
         <div>
-          <label class="block font-medium text-zinc-300 mb-1">Correo Institucional</label>
-          <input type="email" id="loginEmail" value="recepcion@motorplus.com" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-3 rounded-lg focus:outline-none focus:border-blue-500 font-mono">
+          <label id="labelLoginUser" class="block font-medium text-zinc-300 mb-1">Correo Institucional</label>
+          <input type="text" id="loginEmail" value="recepcion@motorplus.com" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-3 rounded-lg focus:outline-none focus:border-blue-500 font-mono">
         </div>
         <div>
-          <label class="block font-medium text-zinc-300 mb-1">Contraseña de Acceso</label>
-          <input type="password" id="loginPass" value="••••••••" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-3 rounded-lg focus:outline-none focus:border-blue-500">
+          <label id="labelLoginPass" class="block font-medium text-zinc-300 mb-1">Contraseña de Acceso</label>
+          <input type="password" id="loginPass" value="••••••••" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-3 rounded-lg focus:outline-none focus:border-blue-500 font-mono">
         </div>
 
         <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-lg text-sm transition shadow-lg shadow-orange-600/30 flex items-center justify-center space-x-2">
@@ -113,7 +117,7 @@
         </div>
 
         <!-- Pestañas de Navegación Dinámicas según el Rol -->
-        <div id="navPestañas" class="flex items-center bg-zinc-900 border border-zinc-800 p-1 rounded-xl text-xs font-semibold">
+        <div id="navPestañas" class="flex flex-wrap items-center bg-zinc-900 border border-zinc-800 p-1 rounded-xl text-xs font-semibold gap-1">
           <!-- Renderizado dinámico por JS según el rol -->
         </div>
 
@@ -203,12 +207,12 @@
               <input type="text" id="cli_apellidos" value="Vargas Estrada" placeholder="Vargas Estrada" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
             </div>
             <div>
-              <label class="block font-semibold text-zinc-700 mb-1">Teléfono Principal <span class="text-orange-600">*</span></label>
-              <input type="tel" id="cli_tel1" value="777-987-6543" placeholder="777-123-4567" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+              <label class="block font-semibold text-zinc-700 mb-1">Teléfono Principal <span class="text-orange-600">*</span> <span class="text-[9px] text-zinc-400">(Será tu contraseña)</span></label>
+              <input type="tel" id="cli_tel1" value="7779876543" placeholder="7771234567" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600 font-mono">
             </div>
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Teléfono Respaldo</label>
-              <input type="tel" id="cli_tel2" placeholder="734-987-6543" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
+              <input type="tel" id="cli_tel2" placeholder="7349876543" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600 font-mono">
             </div>
           </div>
         </div>
@@ -222,7 +226,7 @@
 
           <div class="grid grid-cols-3 gap-3 text-xs">
             <div>
-              <label class="block font-semibold text-zinc-700 mb-1">Placas <span class="text-orange-600">*</span></label>
+              <label class="block font-semibold text-zinc-700 mb-1">Placas <span class="text-orange-600">*</span> <span class="text-[9px] text-zinc-400">(Tu usuario)</span></label>
               <input type="text" id="veh_placas" value="UDR-456-D" placeholder="UDR-456-D" class="wf-input uppercase font-bold text-blue-700 w-full p-2 rounded-lg border border-zinc-300">
             </div>
             <div>
@@ -359,7 +363,6 @@
               <label class="block font-semibold text-zinc-700 mb-1">Mecánico Asignado (Bahía):</label>
               <select id="ord_mecanico" class="wf-input w-full p-2 rounded-lg border border-zinc-300 bg-white font-medium">
                 <option value="Roberto Sánchez (Elevador 1 - Motor)">Roberto Sánchez (Elevador 1 - Motor)</option>
-                <option value="Miguel Ángel Cruz (Fosa 2 - Frenos/Susp.)">Miguel Ángel Cruz (Fosa 2 - Frenos/Susp.)</option>
               </select>
             </div>
             <div>
@@ -372,7 +375,7 @@
 
       <div class="flex justify-end pt-2">
         <button onclick="procesarRegistroOrden()" class="wf-btn-action bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs px-8 py-3 rounded-xl transition shadow-lg shadow-orange-600/30 flex items-center space-x-2">
-          <span>💾 Registrar e Imprimir Orden de Servicio</span>
+          <span>💾 Registrar Orden y Generar Cuenta de Acceso</span>
           <span>→</span>
         </button>
       </div>
@@ -483,6 +486,64 @@
 
     </main>
 
+    <!-- ======================================================== -->
+    <!-- CASO DE USO 5: GESTIONAR TRABAJOS ADICIONALES (CU-05)    -->
+    <!-- ======================================================== -->
+    <main id="vistaCU05" class="hidden max-w-7xl mx-auto w-full px-6 py-6 flex-1 space-y-6">
+
+      <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 border-zinc-100 gap-2">
+          <div>
+            <span class="text-[10px] font-bold tracking-widest text-purple-700 uppercase bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">CU-05 · Autorización de Extras</span>
+            <h2 class="text-lg font-black text-zinc-900 mt-1">Gestionar Autorización de Trabajos Adicionales</h2>
+            <p class="text-xs text-zinc-500">Solicitud de diagnóstico imprevisto por parte del mecánico y aprobación del cliente.</p>
+          </div>
+          <button id="btnNuevaSolicitudExtra" onclick="abrirFormularioTrabajoExtra()" class="hidden bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow">
+            + Solicitar Trabajo Adicional
+          </button>
+        </div>
+
+        <!-- Formulario de Creación de Solicitud -->
+        <div id="formularioTrabajoExtraContainer" class="hidden bg-purple-50/50 border border-purple-200 p-4 rounded-xl space-y-3 text-xs">
+          <h3 class="font-bold text-purple-900">Nueva Solicitud de Trabajo Adicional</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Vehículo / Folio Asignado <span class="text-orange-600">*</span></label>
+              <select id="extra_folio" class="wf-input w-full p-2 rounded-lg border border-zinc-300 bg-white font-medium">
+                <!-- Se llena dinámicamente -->
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Concepto / Refacción Adicional <span class="text-orange-600">*</span></label>
+              <input type="text" id="extra_concepto" placeholder="Ej. Rectificación de discos y cambio de balatas traseras" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Costo Estimado ($ MXN) <span class="text-orange-600">*</span></label>
+              <input type="number" id="extra_monto" placeholder="Ej. 1450" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">Justificación Técnica / Hallazgo</label>
+            <textarea id="extra_justificacion" rows="2" placeholder="Detalle la razón por la cual es indispensable este servicio extra..." class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600"></textarea>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button onclick="document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden')" class="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-600 font-bold">Cancelar</button>
+            <button onclick="guardarSolicitudTrabajoExtra()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-1.5 rounded-lg transition">Enviar Solicitud a Cliente</button>
+          </div>
+        </div>
+
+        <!-- Lista de Trabajos Adicionales Solicitados -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold text-zinc-700 uppercase tracking-wider">Solicitudes de Servicios Extra y Estatus de Aprobación</h3>
+          <div id="contenedorListaTrabajosExtras" class="space-y-3">
+            <!-- Render dinámico -->
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
   </div>
 
   <!-- MODAL: TICKET DE REGISTRO EXITOSO -->
@@ -492,9 +553,9 @@
         ✓
       </div>
       <div>
-        <span class="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded">Comprobante Emitido</span>
-        <h3 class="text-base font-bold text-zinc-900 mt-1">Orden de Servicio Registrada</h3>
-        <p class="text-xs text-zinc-500">Se guardó con éxito en el sistema.</p>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded">Comprobante y Cuenta Creada</span>
+        <h3 class="text-base font-bold text-zinc-900 mt-1">Orden Registrada Exitosamente</h3>
+        <p class="text-xs text-zinc-500">Se generaron las credenciales de acceso para el cliente.</p>
       </div>
 
       <div class="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200 text-left text-xs space-y-1.5 font-mono">
@@ -510,13 +571,13 @@
           <span class="text-zinc-500">Vehículo:</span>
           <span id="ticketVehiculo" class="font-semibold text-zinc-800">Chevrolet Onix (UDR-456-D)</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-zinc-500">Combustible:</span>
-          <span id="ticketGasolina" class="font-semibold text-zinc-800">1/2</span>
+        <div class="flex justify-between pt-2 border-t text-blue-900 font-bold">
+          <span>Usuario (Placa):</span>
+          <span id="ticketUsuario">UDR-456-D</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-zinc-500">Daños:</span>
-          <span id="ticketDanios" class="font-semibold text-zinc-800">0 marcas en carrocería</span>
+        <div class="flex justify-between text-blue-900 font-bold">
+          <span>Contraseña (Tel):</span>
+          <span id="ticketPass">7779876543</span>
         </div>
       </div>
 
@@ -543,6 +604,7 @@
         id: 1,
         folio: 'MP-2026-1522',
         placas: 'MOR-243-D',
+        telefono: '7771234567',
         auto: 'Nissan Versa',
         cliente: 'Juan Perez',
         mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
@@ -554,22 +616,12 @@
         id: 2,
         folio: 'MP-2026-6409',
         placas: 'UDR-456-D',
+        telefono: '7779876543',
         auto: 'Chevrolet Onix 2022',
         cliente: 'Jacqueline Vargas Estrada',
         mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
         falla: 'Revisión de mantenimiento preventivo y afinación general.',
         estado: 'En diagnóstico',
-        hora: new Date().toISOString()
-      },
-      {
-        id: 3,
-        folio: 'MP-2026-0982',
-        placas: 'NVX-112-B',
-        auto: 'Volkswagen Jetta 2019',
-        cliente: 'Laura Gutiérrez',
-        mecanico: 'Miguel Ángel Cruz (Fosa 2 - Frenos/Susp.)',
-        falla: 'Frenos rechinando y pedal esponjoso',
-        estado: 'Esperando refacciones',
         hora: new Date().toISOString()
       }
     ];
@@ -581,27 +633,70 @@
         quien: 'Carlos Mendoza (777-555-0199)',
         motivo: 'Consulta de costo para cambio de balatas delanteras',
         devuelta: 'Sí'
-      },
-      {
-        id: 2,
-        fecha: '2026-11-09 10:05',
-        quien: 'Mariana Ríos (734-444-1288)',
-        motivo: 'Saber si ya llegó la refacción de la bomba de agua',
-        devuelta: 'No'
       }
     ];
 
-    function seleccionarRol(rol, nombre, email) {
-      usuarioActivo = { rol, nombre, email };
+    let trabajosAdicionales = [
+      {
+        id: 1,
+        folio: 'MP-2026-1522',
+        auto: 'Nissan Versa (MOR-243-D)',
+        cliente: 'Juan Perez',
+        concepto: 'Reemplazo de banda de distribución y polea tensora',
+        monto: 1850.00,
+        justificacion: 'Al revisar el ruido del motor se detectó desgaste severo.',
+        solicitadoPor: 'Roberto Sánchez (Mecánico)',
+        estadoAutorizacion: 'Pendiente',
+        fecha: '2026-11-09 11:15'
+      }
+    ];
+
+    function seleccionarRol(rol, nombre, defaultVal) {
+      usuarioActivo = { rol, nombre };
       document.querySelectorAll('.rol-btn').forEach(btn => {
-        btn.className = "rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700";
+        btn.className = "rol-btn border border-zinc-800 bg-zinc-900 text-zinc-400 py-2.5 px-1 rounded-xl font-bold flex flex-col items-center gap-1 transition hover:border-zinc-700";
       });
-      document.getElementById(`rolBtn_${rol}`).className = "rol-btn border border-orange-500 bg-orange-500/10 text-orange-400 py-2.5 px-2 rounded-xl font-bold flex flex-col items-center gap-1 transition";
-      document.getElementById('loginEmail').value = email;
+      document.getElementById(`rolBtn_${rol}`).className = "rol-btn border border-orange-500 bg-orange-500/10 text-orange-400 py-2.5 px-1 rounded-xl font-bold flex flex-col items-center gap-1 transition";
+      
+      const lblUser = document.getElementById('labelLoginUser');
+      const lblPass = document.getElementById('labelLoginPass');
+      const inpUser = document.getElementById('loginEmail');
+      const inpPass = document.getElementById('loginPass');
+
+      if (rol === 'Cliente') {
+        lblUser.innerText = "Placa del Vehículo (Usuario)";
+        lblPass.innerText = "Teléfono Principal (Contraseña)";
+        inpUser.value = "UDR-456-D";
+        inpPass.value = "7779876543";
+        inpPass.type = "text";
+      } else {
+        lblUser.innerText = "Correo Institucional / Usuario";
+        lblPass.innerText = "Contraseña de Acceso";
+        inpUser.value = defaultVal;
+        inpPass.value = "••••••••";
+        inpPass.type = "password";
+      }
     }
 
     function iniciarSesion(event) {
       event.preventDefault();
+      const usuarioInput = document.getElementById('loginEmail').value.trim();
+      const passInput = document.getElementById('loginPass').value.trim();
+
+      if (usuarioActivo.rol === 'Cliente') {
+        const clienteEncontrado = ordenesActivas.find(o => 
+          o.placas.toUpperCase() === usuarioInput.toUpperCase() && o.telefono === passInput
+        );
+
+        if (!clienteEncontrado) {
+          alert("Credenciales inválidas. Verifique que la Placa y el Teléfono Principal coincidan con una orden registrada.");
+          return;
+        }
+
+        usuarioActivo.nombre = clienteEncontrado.cliente;
+        usuarioActivo.placaAsociada = clienteEncontrado.placas;
+      }
+
       document.getElementById('pantallaLogin').classList.add('hidden');
       document.getElementById('pantallaApp').classList.remove('hidden');
 
@@ -613,6 +708,8 @@
 
       if (usuarioActivo.rol === 'Mecanico') {
         cambiarCasoUso('CU04');
+      } else if (usuarioActivo.rol === 'Cliente') {
+        cambiarCasoUso('CU02');
       } else {
         cambiarCasoUso('CU01');
       }
@@ -622,35 +719,51 @@
       const nav = document.getElementById('navPestañas');
       
       if (usuarioActivo.rol === 'Mecanico') {
-        // Exclusivo Mecánico: Únicamente CU-04 (Progreso en Bahía)
         nav.innerHTML = `
-          <button onclick="cambiarCasoUso('CU04')" id="tabBtn_CU04" class="px-4 py-1.5 rounded-lg bg-orange-600 text-white font-bold transition flex items-center space-x-1.5 shadow">
+          <button onclick="cambiarCasoUso('CU04')" id="tabBtn_CU04" class="px-3 py-1.5 rounded-lg bg-orange-600 text-white font-bold transition flex items-center space-x-1 shadow">
             <span>🔧</span>
-            <span>CU-04: Progreso en Bahía</span>
+            <span>CU-04: Bahía</span>
+          </button>
+          <button onclick="cambiarCasoUso('CU05')" id="tabBtn_CU05" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
+            <span>➕</span>
+            <span>CU-05: Solicitud Extras</span>
+          </button>
+        `;
+      } else if (usuarioActivo.rol === 'Cliente') {
+        nav.innerHTML = `
+          <button onclick="cambiarCasoUso('CU02')" id="tabBtn_CU02" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition flex items-center space-x-1 shadow">
+            <span>🔍</span>
+            <span>CU-02: Mi Estatus</span>
+          </button>
+          <button onclick="cambiarCasoUso('CU05')" id="tabBtn_CU05" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
+            <span>📝</span>
+            <span>CU-05: Autorizar Trabajos</span>
           </button>
         `;
       } else {
-        // Recepción y Admin: CU-01, CU-02 y CU-03 (Sin CU-04 para recepción pura)
         nav.innerHTML = `
           <button onclick="cambiarCasoUso('CU01')" id="tabBtn_CU01" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition flex items-center space-x-1 shadow">
             <span>📋</span>
-            <span>CU-01: Registrar Orden</span>
+            <span>CU-01: Orden</span>
           </button>
           <button onclick="cambiarCasoUso('CU02')" id="tabBtn_CU02" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
             <span>🔍</span>
-            <span>CU-02: Consultar Estatus</span>
+            <span>CU-02: Estatus</span>
           </button>
           <button onclick="cambiarCasoUso('CU03')" id="tabBtn_CU03" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
             <span>📞</span>
-            <span>CU-03: Bitácora Llamadas</span>
+            <span>CU-03: Bitácora</span>
+          </button>
+          <button onclick="cambiarCasoUso('CU05')" id="tabBtn_CU05" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
+            <span>⚙️</span>
+            <span>CU-05: Gestor Extras</span>
           </button>
         `;
       }
     }
 
     function actualizarEstiloPestañas(activo) {
-      const tabs = ['CU01', 'CU02', 'CU03', 'CU04'];
-      tabs.forEach(t => {
+      ['CU01', 'CU02', 'CU03', 'CU04', 'CU05'].forEach(t => {
         const btn = document.getElementById(`tabBtn_${t}`);
         if (btn) {
           if (t === activo) {
@@ -668,9 +781,8 @@
     }
 
     function cambiarCasoUso(caso) {
-      // Restricción estricta de seguridad en interfaz
       if (caso === 'CU04' && usuarioActivo.rol !== 'Mecanico') {
-        alert("Acceso Restringido: El Caso de Uso 4 (Actualizar Progreso) es exclusivo para el perfil de MECÁNICO.");
+        alert("Acceso Restringido: El Caso de Uso 4 es exclusivo para mecánicos.");
         return;
       }
 
@@ -678,17 +790,23 @@
       document.getElementById('vistaCU02').classList.add('hidden');
       document.getElementById('vistaCU03').classList.add('hidden');
       document.getElementById('vistaCU04').classList.add('hidden');
+      document.getElementById('vistaCU05').classList.add('hidden');
       document.getElementById('alertaError').classList.add('hidden');
 
       actualizarEstiloPestañas(caso);
 
-      if (caso === 'CU01' && usuarioActivo.rol !== 'Mecanico') {
+      if (caso === 'CU01' && usuarioActivo.rol !== 'Mecanico' && usuarioActivo.rol !== 'Cliente') {
         document.getElementById('vistaCU01').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-01: Registrar Orden de Servicio";
-      } else if (caso === 'CU02' && usuarioActivo.rol !== 'Mecanico') {
+      } else if (caso === 'CU02') {
         document.getElementById('vistaCU02').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-02: Consulta de Estatus Vehicular";
-      } else if (caso === 'CU03' && usuarioActivo.rol !== 'Mecanico') {
+        
+        if (usuarioActivo.rol === 'Cliente' && usuarioActivo.placaAsociada) {
+          document.getElementById('consultaPlacaFolio').value = usuarioActivo.placaAsociada;
+          ejecutarConsultaEstatus();
+        }
+      } else if (caso === 'CU03' && usuarioActivo.rol !== 'Mecanico' && usuarioActivo.rol !== 'Cliente') {
         document.getElementById('vistaCU03').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-03: Bitácora de Llamadas";
         renderizarBitacoraLlamadas();
@@ -696,6 +814,17 @@
         document.getElementById('vistaCU04').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-04: Progreso del Servicio (Exclusivo Mecánico)";
         renderizarTarjetasBahia();
+      } else if (caso === 'CU05') {
+        document.getElementById('vistaCU05').classList.remove('hidden');
+        document.getElementById('indicadorCasoUsoActivo').innerText = "CU-05: Gestionar Autorización de Trabajos Adicionales";
+        
+        if (usuarioActivo.rol !== 'Cliente') {
+          document.getElementById('btnNuevaSolicitudExtra').classList.remove('hidden');
+        } else {
+          document.getElementById('btnNuevaSolicitudExtra').classList.add('hidden');
+        }
+        
+        renderizarTrabajosAdicionales();
       }
     }
 
@@ -749,12 +878,19 @@
 
     function buscarPlacaManual() {
       const val = document.getElementById('buscarPlacaInput').value.trim().toUpperCase();
-      if (val === "UDR-456-D" || val === "MOR-243-D") {
-        alert(`Unidad ${val} localizada correctamente en la base de datos.`);
+      const encontrada = ordenesActivas.find(o => o.placas === val);
+      if (encontrada) {
+        document.getElementById('cli_nombre').value = encontrada.cliente.split(' ')[0] || '';
+        document.getElementById('cli_apellidos').value = encontrada.cliente.split(' ').slice(1).join(' ') || '';
+        document.getElementById('cli_tel1').value = encontrada.telefono;
+        document.getElementById('veh_placas').value = encontrada.placas;
+        document.getElementById('veh_marca').value = encontrada.auto.split(' ')[0] || '';
+        document.getElementById('veh_modelo').value = encontrada.auto.split(' ')[1] || '';
+        alert(`Unidad ${val} encontrada en el sistema. Datos cargados automáticamente.`);
       } else if (!val) {
         alert("Escriba una placa válida.");
       } else {
-        alert("Unidad no registrada previamente. Proceda con la captura del nuevo cliente.");
+        alert("Unidad no registrada previamente. Proceda con la captura del nuevo cliente y se creará su cuenta de acceso automáticamente.");
         document.getElementById('veh_placas').value = val;
       }
     }
@@ -792,7 +928,7 @@
       const apellidos = document.getElementById('cli_apellidos').value.trim();
       const tel1 = document.getElementById('cli_tel1').value.trim();
       const tel2 = document.getElementById('cli_tel2').value.trim();
-      const placas = document.getElementById('veh_placas').value.trim();
+      const placas = document.getElementById('veh_placas').value.trim().toUpperCase();
       const marca = document.getElementById('veh_marca').value.trim();
       const modelo = document.getElementById('veh_modelo').value.trim();
       const anio = document.getElementById('veh_anio').value;
@@ -803,7 +939,7 @@
       const mecanico = document.getElementById('ord_mecanico').value;
 
       if (!nombre || !tel1 || !placas || !gasolina || !falla) {
-        document.getElementById('alertaErrorTexto').innerText = 'Debe capturar obligatoriamente el cliente, placas, nivel de gasolina y falla reportada.';
+        document.getElementById('alertaErrorTexto').innerText = 'Debe capturar obligatoriamente el cliente, teléfono principal, placas, nivel de gasolina y falla reportada.';
         document.getElementById('alertaError').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -815,7 +951,8 @@
       const nuevaOrden = {
         id: ordenesActivas.length + 1,
         folio: nuevoFolio,
-        placas: placas.toUpperCase(),
+        placas: placas,
+        telefono: tel1,
         auto: `${marca} ${modelo} ${anio}`.trim(),
         cliente: `${nombre} ${apellidos}`.trim(),
         mecanico: mecanico,
@@ -824,30 +961,13 @@
         hora: new Date().toISOString()
       };
 
-      // Guardar localmente para interacción fluida
       ordenesActivas.unshift(nuevaOrden);
-
-      // Intento de persistencia backend si el servidor Node.js está corriendo
-      try {
-        await fetch('http://localhost:3000/api/ordenes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cliente: { nombre, apellidos, telefono1: tel1, telefono2: tel2 },
-            vehiculo: { placas: placas.toUpperCase(), marca, modelo, anio: parseInt(anio) || 2022, color, vin },
-            inventario: { combustible: gasolina, danos: listaDanios },
-            orden: { falla, mecanico, responsable: usuarioActivo.nombre }
-          })
-        });
-      } catch (e) {
-        console.log("Nota: Guardado local en memoria de la interfaz activa.");
-      }
 
       document.getElementById('ticketFolio').innerText = nuevoFolio;
       document.getElementById('ticketCliente').innerText = `${nombre} ${apellidos}`;
-      document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas.toUpperCase()})`;
-      document.getElementById('ticketGasolina').innerText = gasolina;
-      document.getElementById('ticketDanios').innerText = `${listaDanios.length} marcas en carrocería`;
+      document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas})`;
+      document.getElementById('ticketUsuario').innerText = placas;
+      document.getElementById('ticketPass').innerText = tel1;
 
       document.getElementById('modalTicket').classList.remove('hidden');
     }
@@ -857,7 +977,7 @@
       limpiarFormularioCU01();
     }
 
-    // Lógica para CU-02: Consultar Estatus del Vehículo (Fiel a la vista de referencia)
+    // Lógica para CU-02: Consultar Estatus
     function ejecutarConsultaEstatus() {
       const criterio = document.getElementById('consultaPlacaFolio').value.trim().toUpperCase();
       const contenedor = document.getElementById('resultadoConsultaContainer');
@@ -920,7 +1040,6 @@
             <span class="px-3.5 py-1 rounded-full text-xs font-bold ${obtenerColorEstado(ord.estado)}">${ord.estado}</span>
           </div>
 
-          <!-- Línea de tiempo visual exacta como captura de pantalla -->
           <div class="py-4 px-2">
             <div class="text-xs font-bold text-zinc-700 mb-4">Progreso de la Orden (Sólo Consulta):</div>
             <div class="flex items-center justify-between relative">
@@ -947,7 +1066,7 @@
       `;
     }
 
-    // Lógica para CU-03: Registrar Bitácora de Llamadas
+    // Lógica para CU-03: Bitácora de Llamadas
     function guardarLlamadaBitacora() {
       const quien = document.getElementById('llamada_quien').value.trim();
       const motivo = document.getElementById('llamada_motivo').value.trim();
@@ -1053,26 +1172,135 @@
       `).join('');
     }
 
-    async function cambiarEstadoOrden(folio, nuevoEstado) {
+    function cambiarEstadoOrden(folio, nuevoEstado) {
       const ord = ordenesActivas.find(o => o.folio === folio);
       if (ord) {
         ord.estado = nuevoEstado;
       }
-
-      try {
-        await fetch(`http://localhost:3000/api/ordenes/${folio}/estatus`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estatus: nuevoEstado })
-        });
-      } catch (e) {
-        console.log("Nota: Estatus actualizado localmente.");
-      }
-
       if (nuevoEstado === 'Terminado') {
-        alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA / LISTA para entrega.`);
+        alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA.`);
       }
       renderizarTarjetasBahia();
+    }
+
+    // Lógica para CU-05: Trabajos Adicionales
+    function abrirFormularioTrabajoExtra() {
+      const selectFolio = document.getElementById('extra_folio');
+      selectFolio.innerHTML = ordenesActivas.map(o => `
+        <option value="${o.folio}">${o.folio} - ${o.auto} (${o.cliente})</option>
+      `).join('');
+      document.getElementById('formularioTrabajoExtraContainer').classList.remove('hidden');
+    }
+
+    function guardarSolicitudTrabajoExtra() {
+      const folio = document.getElementById('extra_folio').value;
+      const concepto = document.getElementById('extra_concepto').value.trim();
+      const monto = parseFloat(document.getElementById('extra_monto').value);
+      const justificacion = document.getElementById('extra_justificacion').value.trim();
+
+      if (!concepto || isNaN(monto) || monto <= 0) {
+        alert("Por favor introduzca el concepto y un costo adicional válido.");
+        return;
+      }
+
+      const ord = ordenesActivas.find(o => o.folio === folio);
+      const ahora = new Date();
+      const fechaFormateada = `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-${String(ahora.getDate()).padStart(2,'0')} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+
+      trabajosAdicionales.unshift({
+        id: trabajosAdicionales.length + 1,
+        folio: folio,
+        auto: ord ? ord.auto : 'Vehículo',
+        cliente: ord ? ord.cliente : 'Cliente',
+        concepto: concepto,
+        monto: monto,
+        justificacion: justificacion || 'Hallazgo durante servicio técnico.',
+        solicitadoPor: usuarioActivo.nombre,
+        estadoAutorizacion: 'Pendiente',
+        fecha: fechaFormateada
+      });
+
+      document.getElementById('extra_concepto').value = '';
+      document.getElementById('extra_monto').value = '';
+      document.getElementById('extra_justificacion').value = '';
+      document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden');
+
+      renderizarTrabajosAdicionales();
+      alert("Solicitud de trabajo adicional enviada al cliente.");
+    }
+
+    function renderizarTrabajosAdicionales() {
+      const contenedor = document.getElementById('contenedorListaTrabajosExtras');
+
+      let listaAMostrar = trabajosAdicionales;
+      if (usuarioActivo.rol === 'Cliente' && usuarioActivo.placaAsociada) {
+        listaAMostrar = trabajosAdicionales.filter(t => t.auto.includes(usuarioActivo.placaAsociada));
+      }
+
+      if (listaAMostrar.length === 0) {
+        contenedor.innerHTML = `<div class="p-4 bg-zinc-50 rounded-xl text-center text-zinc-400 italic text-xs">No hay solicitudes de trabajos adicionales pendientes.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = listaAMostrar.map(t => {
+        let badgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
+        if (t.estadoAutorizacion === 'Aprobado') badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        if (t.estadoAutorizacion === 'Rechazado') badgeColor = 'bg-red-100 text-red-800 border-red-200';
+
+        return `
+          <div class="wf-card bg-white p-4 rounded-xl border border-zinc-200 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 gap-2 text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.folio}</span>
+                <span class="font-bold text-zinc-800">${t.auto}</span>
+                <span class="text-zinc-500">| Cliente: <strong>${t.cliente}</strong></span>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">
+                ${t.estadoAutorizacion}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+              <div class="md:col-span-2">
+                <span class="text-zinc-400 block font-bold text-[10px] uppercase">Concepto / Refacción Adicional</span>
+                <p class="font-bold text-zinc-900">${t.concepto}</p>
+                <p class="text-zinc-500 text-[11px] mt-1">Justificación: <em>"${t.justificacion}"</em></p>
+              </div>
+              <div>
+                <span class="text-zinc-400 block font-bold text-[10px] uppercase">Costo Estimado Extra</span>
+                <p class="text-base font-black text-purple-700">$${t.monto.toFixed(2)} MXN</p>
+              </div>
+              <div class="flex flex-col justify-center items-end space-y-1">
+                ${t.estadoAutorizacion === 'Pendiente' ? `
+                  <div class="flex gap-2">
+                    <button onclick="responderTrabajoExtra(${t.id}, 'Aprobado')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
+                      ✓ Autorizar
+                    </button>
+                    <button onclick="responderTrabajoExtra(${t.id}, 'Rechazado')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
+                      ✕ Rechazar
+                    </button>
+                  </div>
+                ` : `
+                  <span class="text-[11px] font-mono text-zinc-400">Respuesta registrada</span>
+                `}
+              </div>
+            </div>
+            <div class="text-[10px] text-zinc-400 font-mono border-t pt-1.5 flex justify-between">
+              <span>Solicitado por: ${t.solicitadoPor}</span>
+              <span>Fecha: ${t.fecha}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function responderTrabajoExtra(id, estado) {
+      const registro = trabajosAdicionales.find(t => t.id === id);
+      if (registro) {
+        registro.estadoAutorizacion = estado;
+        renderizarTrabajosAdicionales();
+        alert(`El trabajo adicional ha sido marcado como: ${estado.toUpperCase()}`);
+      }
     }
 
     function obtenerColorEstado(estado) {
