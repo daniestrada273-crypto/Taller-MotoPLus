@@ -544,6 +544,147 @@
 
     </main>
 
+    <!-- ======================================================== -->
+    <!-- CASO DE USO 6: REGISTRAR PAGO DE SERVICIO (CU-06)        -->
+    <!-- ======================================================== -->
+    <main id="vistaCU06" class="hidden max-w-7xl mx-auto w-full px-6 py-6 flex-1 space-y-6">
+      
+      <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+        <div>
+          <span class="text-[10px] font-bold tracking-widest text-emerald-700 uppercase bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">CU-06 · Caja y Cobranza (Recepción / Admin)</span>
+          <h2 class="text-lg font-black text-zinc-900 mt-1">Registrar Pago de Servicio (Cobro en Efectivo)</h2>
+          <p class="text-xs text-zinc-500">Seleccione la orden finalizada para calcular el costo total del servicio (incluyendo trabajos adicionales autorizados) y procesar el cobro en efectivo.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs border-t border-zinc-100 pt-4">
+          
+          <div class="lg:col-span-7 space-y-4">
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Seleccionar Orden de Servicio Pendiente de Pago <span class="text-orange-600">*</span></label>
+              <select id="pago_selectFolio" onchange="cargarDetallePago()" class="wf-input w-full p-2.5 rounded-xl border border-zinc-300 bg-white font-bold text-xs">
+                <!-- Se llena dinámicamente con órdenes activas -->
+              </select>
+            </div>
+
+            <!-- Resumen detallado de la cuenta -->
+            <div id="desglosePagoCuenta" class="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
+              <!-- Render dinámico -->
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 bg-zinc-900 text-white p-5 rounded-2xl border border-zinc-800 shadow-xl flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+                <span class="text-xs font-bold text-zinc-400 uppercase">Módulo de Caja</span>
+                <span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">Cobro Exclusivo en Efectivo</span>
+              </div>
+
+              <div>
+                <label class="block text-zinc-300 font-semibold mb-1">Método de Pago</label>
+                <input type="text" value="💵 Efectivo" readonly class="w-full bg-zinc-800 border border-zinc-700 text-emerald-400 font-bold p-2.5 rounded-lg text-xs">
+              </div>
+
+              <div>
+                <label class="block text-zinc-300 font-semibold mb-1">Total a Cobrar ($ MXN)</label>
+                <div id="pagoTotalMostrar" class="text-2xl font-black text-white font-mono bg-black p-3 rounded-lg border border-zinc-800 text-right">
+                  $0.00
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-zinc-300 font-semibold mb-1">Efectivo Recibido ($ MXN) <span class="text-orange-500">*</span></label>
+                <input type="number" id="pagoMontoRecibido" oninput="calcularCambioEfectivo()" placeholder="Ej. 3000" class="w-full bg-black border border-zinc-700 text-white font-mono text-base font-bold p-2.5 rounded-lg focus:outline-none focus:border-emerald-500">
+              </div>
+
+              <div class="bg-zinc-800/80 p-3 rounded-lg border border-zinc-700/80 flex justify-between items-center font-mono">
+                <span class="text-xs text-zinc-300">Cambio a Entregar:</span>
+                <strong id="pagoCambioMostrar" class="text-lg text-emerald-400 font-black">$0.00</strong>
+              </div>
+            </div>
+
+            <button onclick="procesarCobroEfectivo()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2">
+              <span>💳 Confirmar Pago y Entregar Comprobante</span>
+              <span>→</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Historial de Pagos Registrados -->
+      <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold text-zinc-900 border-b pb-3 border-zinc-100">Historial de Pagos Realizados en Efectivo</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+              <tr>
+                <th class="p-3">Folio Orden</th>
+                <th class="p-3">Cliente</th>
+                <th class="p-3">Vehículo</th>
+                <th class="p-3">Monto Total</th>
+                <th class="p-3">Recibido</th>
+                <th class="p-3">Cambio</th>
+                <th class="p-3">Atendió</th>
+                <th class="p-3 text-right">Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="tablaHistorialPagos" class="divide-y divide-zinc-100 font-medium">
+              <!-- Render dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL: TICKET DE COBRO EN EFECTIVO EXITOSO -->
+  <div id="modalTicketPago" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-zinc-200 text-center space-y-4">
+      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+        💵
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Recibo Oficial de Pago</span>
+        <h3 class="text-base font-bold text-zinc-900 mt-1">Pago Registrado Correctamente</h3>
+        <p class="text-xs text-zinc-500">Transacción liquidada en efectivo y servicio concluido.</p>
+      </div>
+
+      <div class="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200 text-left text-xs space-y-1.5 font-mono">
+        <div class="flex justify-between border-b pb-1 text-black font-bold">
+          <span>FOLIO:</span>
+          <span id="ticketPagoFolio" class="text-emerald-700 font-black">MP-2026-6409</span>
+        </div>
+        <div class="flex justify-between pt-1">
+          <span class="text-zinc-500">Cliente:</span>
+          <span id="ticketPagoCliente" class="font-semibold text-zinc-800">Jacqueline Vargas Estrada</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Método:</span>
+          <span class="font-bold text-emerald-700">Efectivo</span>
+        </div>
+        <div class="flex justify-between border-t pt-1 font-bold text-zinc-900">
+          <span>Total Pagado:</span>
+          <span id="ticketPagoMontoTotal">$2,650.00 MXN</span>
+        </div>
+        <div class="flex justify-between text-zinc-600">
+          <span>Efectivo Entregado:</span>
+          <span id="ticketPagoRecibido">$3,000.00 MXN</span>
+        </div>
+        <div class="flex justify-between text-emerald-700 font-bold">
+          <span>Cambio Entregado:</span>
+          <span id="ticketPagoCambio">$350.00 MXN</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2 text-xs">
+        <button onclick="cerrarTicketPago()" class="w-full py-2.5 bg-zinc-900 hover:bg-black text-white rounded-lg font-bold transition">
+          Imprimir Recibo y Cerrar
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: TICKET DE REGISTRO EXITOSO -->
@@ -598,6 +739,7 @@
     };
 
     let listaDanios = [];
+    let totalCalculadoPagoActual = 0;
 
     let ordenesActivas = [
       {
@@ -609,7 +751,9 @@
         cliente: 'Juan Perez',
         mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
         falla: 'El cliente manifiesta ruido extraño y apagado repentino unos momentos despues de encender el auto',
+        costoBase: 1200.00,
         estado: 'Terminado',
+        pagado: false,
         hora: new Date().toISOString()
       },
       {
@@ -621,7 +765,9 @@
         cliente: 'Jacqueline Vargas Estrada',
         mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
         falla: 'Revisión de mantenimiento preventivo y afinación general.',
+        costoBase: 1800.00,
         estado: 'En diagnóstico',
+        pagado: false,
         hora: new Date().toISOString()
       }
     ];
@@ -646,8 +792,22 @@
         monto: 1850.00,
         justificacion: 'Al revisar el ruido del motor se detectó desgaste severo.',
         solicitadoPor: 'Roberto Sánchez (Mecánico)',
-        estadoAutorizacion: 'Pendiente',
+        estadoAutorizacion: 'Aprobado',
         fecha: '2026-11-09 11:15'
+      }
+    ];
+
+    let historialPagos = [
+      {
+        id: 1,
+        folio: 'MP-2026-1102',
+        cliente: 'Pedro Ramírez',
+        auto: 'Toyota Corolla (ABC-123-A)',
+        total: 1500.00,
+        recibido: 2000.00,
+        cambio: 500.00,
+        atendio: 'Daniela Vargas',
+        fecha: '2026-11-08 16:45'
       }
     ];
 
@@ -741,6 +901,7 @@
           </button>
         `;
       } else {
+        // Recepción y Administrador ven CU-06: Registrar Pago de Servicio
         nav.innerHTML = `
           <button onclick="cambiarCasoUso('CU01')" id="tabBtn_CU01" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition flex items-center space-x-1 shadow">
             <span>📋</span>
@@ -756,14 +917,18 @@
           </button>
           <button onclick="cambiarCasoUso('CU05')" id="tabBtn_CU05" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
             <span>⚙️</span>
-            <span>CU-05: Gestor Extras</span>
+            <span>CU-05: Extras</span>
+          </button>
+          <button onclick="cambiarCasoUso('CU06')" id="tabBtn_CU06" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
+            <span>💵</span>
+            <span>CU-06: Registrar Pago</span>
           </button>
         `;
       }
     }
 
     function actualizarEstiloPestañas(activo) {
-      ['CU01', 'CU02', 'CU03', 'CU04', 'CU05'].forEach(t => {
+      ['CU01', 'CU02', 'CU03', 'CU04', 'CU05', 'CU06'].forEach(t => {
         const btn = document.getElementById(`tabBtn_${t}`);
         if (btn) {
           if (t === activo) {
@@ -786,11 +951,17 @@
         return;
       }
 
+      if (caso === 'CU06' && (usuarioActivo.rol === 'Mecanico' || usuarioActivo.rol === 'Cliente')) {
+        alert("Acceso Restringido: El Caso de Uso 6 es exclusivo para Recepción y Administrador.");
+        return;
+      }
+
       document.getElementById('vistaCU01').classList.add('hidden');
       document.getElementById('vistaCU02').classList.add('hidden');
       document.getElementById('vistaCU03').classList.add('hidden');
       document.getElementById('vistaCU04').classList.add('hidden');
       document.getElementById('vistaCU05').classList.add('hidden');
+      document.getElementById('vistaCU06').classList.add('hidden');
       document.getElementById('alertaError').classList.add('hidden');
 
       actualizarEstiloPestañas(caso);
@@ -825,7 +996,167 @@
         }
         
         renderizarTrabajosAdicionales();
+      } else if (caso === 'CU06') {
+        document.getElementById('vistaCU06').classList.remove('hidden');
+        document.getElementById('indicadorCasoUsoActivo').innerText = "CU-06: Registrar Pago de Servicio (Efectivo)";
+        inicializarModuloPago();
       }
+    }
+
+    // LÓGICA CASO DE USO 6: REGISTRAR PAGO DE SERVICIO
+    function inicializarModuloPago() {
+      const select = document.getElementById('pago_selectFolio');
+      const ordenesPendientes = ordenesActivas.filter(o => !o.pagado);
+
+      if (ordenesPendientes.length === 0) {
+        select.innerHTML = `<option value="">-- No hay órdenes pendientes de cobro --</option>`;
+        document.getElementById('desglosePagoCuenta').innerHTML = `<p class="text-zinc-400 italic text-center">Todas las órdenes de servicio están liquidadas.</p>`;
+        document.getElementById('pagoTotalMostrar').innerText = "$0.00";
+        document.getElementById('pagoCambioMostrar').innerText = "$0.00";
+        totalCalculadoPagoActual = 0;
+        return;
+      }
+
+      select.innerHTML = ordenesPendientes.map(o => `
+        <option value="${o.folio}">${o.folio} - ${o.auto} (${o.cliente}) - [Estatus: ${o.estado}]</option>
+      `).join('');
+
+      cargarDetallePago();
+      renderizarHistorialPagos();
+    }
+
+    function cargarDetallePago() {
+      const folio = document.getElementById('pago_selectFolio').value;
+      const desglose = document.getElementById('desglosePagoCuenta');
+      const ord = ordenesActivas.find(o => o.folio === folio);
+
+      if (!ord) return;
+
+      const extrasAprobados = trabajosAdicionales.filter(t => t.folio === folio && t.estadoAutorizacion === 'Aprobado');
+      const montoExtras = extrasAprobados.reduce((sum, item) => sum + item.monto, 0);
+      const costoBase = ord.costoBase || 1500.00;
+      totalCalculadoPagoActual = costoBase + montoExtras;
+
+      desglose.innerHTML = `
+        <div class="flex justify-between items-center border-b pb-2">
+          <span class="font-bold text-zinc-900">${ord.auto} (${ord.placas})</span>
+          <span class="text-blue-700 font-mono font-bold">${ord.folio}</span>
+        </div>
+        <div class="space-y-1.5 text-zinc-700">
+          <div class="flex justify-between">
+            <span>Cliente Titular:</span>
+            <strong class="text-zinc-900">${ord.cliente}</strong>
+          </div>
+          <div class="flex justify-between">
+            <span>Servicio Base / Mantenimiento:</span>
+            <span class="font-mono font-semibold">$${costoBase.toFixed(2)} MXN</span>
+          </div>
+          ${extrasAprobados.map(e => `
+            <div class="flex justify-between text-purple-700 text-[11px] pl-2 border-l-2 border-purple-300">
+              <span>+ Extra: ${e.concepto}</span>
+              <span class="font-mono font-bold">$${e.monto.toFixed(2)} MXN</span>
+            </div>
+          `).join('')}
+          <div class="flex justify-between border-t border-zinc-200 pt-2 text-sm font-black text-zinc-900">
+            <span>TOTAL LIQUIDACIÓN:</span>
+            <span class="text-emerald-700 font-mono">$${totalCalculadoPagoActual.toFixed(2)} MXN</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('pagoTotalMostrar').innerText = `$${totalCalculadoPagoActual.toFixed(2)}`;
+      document.getElementById('pagoMontoRecibido').value = '';
+      document.getElementById('pagoCambioMostrar').innerText = "$0.00";
+    }
+
+    function calcularCambioEfectivo() {
+      const recibido = parseFloat(document.getElementById('pagoMontoRecibido').value) || 0;
+      const cambio = recibido - totalCalculadoPagoActual;
+      const elemCambio = document.getElementById('pagoCambioMostrar');
+
+      if (cambio >= 0) {
+        elemCambio.innerText = `$${cambio.toFixed(2)} MXN`;
+        elemCambio.className = "text-lg text-emerald-400 font-black";
+      } else {
+        elemCambio.innerText = "Falta dinero";
+        elemCambio.className = "text-xs text-red-400 font-bold";
+      }
+    }
+
+    function procesarCobroEfectivo() {
+      const folio = document.getElementById('pago_selectFolio').value;
+      const recibido = parseFloat(document.getElementById('pagoMontoRecibido').value);
+      const ord = ordenesActivas.find(o => o.folio === folio);
+
+      if (!ord) {
+        alert("Seleccione una orden válida.");
+        return;
+      }
+
+      if (isNaN(recibido) || recibido < totalCalculadoPagoActual) {
+        alert("El dinero en efectivo recibido es insuficiente para cubrir el total de la orden.");
+        return;
+      }
+
+      const cambio = recibido - totalCalculadoPagoActual;
+      const ahora = new Date();
+      const fechaFormateada = `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-${String(ahora.getDate()).padStart(2,'0')} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+
+      // Actualizar estado de la orden
+      ord.pagado = true;
+      ord.estado = 'Terminado';
+
+      // Agregar al historial de pagos
+      historialPagos.unshift({
+        id: historialPagos.length + 1,
+        folio: ord.folio,
+        cliente: ord.cliente,
+        auto: `${ord.auto} (${ord.placas})`,
+        total: totalCalculadoPagoActual,
+        recibido: recibido,
+        cambio: cambio,
+        atendio: usuarioActivo.nombre,
+        fecha: fechaFormateada
+      });
+
+      // Llenar ticket
+      document.getElementById('ticketPagoFolio').innerText = ord.folio;
+      document.getElementById('ticketPagoCliente').innerText = ord.cliente;
+      document.getElementById('ticketPagoMontoTotal').innerText = `$${totalCalculadoPagoActual.toFixed(2)} MXN`;
+      document.getElementById('ticketPagoRecibido').innerText = `$${recibido.toFixed(2)} MXN`;
+      document.getElementById('ticketPagoCambio').innerText = `$${cambio.toFixed(2)} MXN`;
+
+      document.getElementById('modalTicketPago').classList.remove('hidden');
+    }
+
+    function cerrarTicketPago() {
+      document.getElementById('modalTicketPago').classList.add('hidden');
+      inicializarModuloPago();
+    }
+
+    function renderizarHistorialPagos() {
+      const tbody = document.getElementById('tablaHistorialPagos');
+      if (historialPagos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-zinc-400 italic">No hay registros de pagos efectuados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = historialPagos.map(p => `
+        <tr class="hover:bg-zinc-50 transition">
+          <td class="p-3 font-mono font-bold text-blue-700">${p.folio}</td>
+          <td class="p-3 font-bold text-zinc-800">${p.cliente}</td>
+          <td class="p-3 text-zinc-600">${p.auto}</td>
+          <td class="p-3 font-mono font-bold text-emerald-700">$${p.total.toFixed(2)}</td>
+          <td class="p-3 font-mono text-zinc-600">$${p.recibido.toFixed(2)}</td>
+          <td class="p-3 font-mono text-zinc-600">$${p.cambio.toFixed(2)}</td>
+          <td class="p-3 text-zinc-500">${p.atendio}</td>
+          <td class="p-3 text-right">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+              ✓ Pagado (Efectivo)
+            </span>
+          </td>
+        </tr>
+      `).join('');
     }
 
     // Funciones de Carrocería
@@ -957,7 +1288,9 @@
         cliente: `${nombre} ${apellidos}`.trim(),
         mecanico: mecanico,
         falla: falla,
+        costoBase: 1500.00,
         estado: 'Ingresado',
+        pagado: false,
         hora: new Date().toISOString()
       };
 
