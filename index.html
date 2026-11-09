@@ -553,16 +553,16 @@
         <div>
           <span class="text-[10px] font-bold tracking-widest text-emerald-700 uppercase bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">CU-06 · Caja y Cobranza (Recepción / Admin)</span>
           <h2 class="text-lg font-black text-zinc-900 mt-1">Registrar Pago de Servicio (Cobro en Efectivo)</h2>
-          <p class="text-xs text-zinc-500">Seleccione la orden finalizada para calcular el costo total del servicio (incluyendo trabajos adicionales autorizados) y procesar el cobro en efectivo.</p>
+          <p class="text-xs text-zinc-500">Solo se pueden cobrar vehículos cuyo estatus sea <strong>"Terminado"</strong>. Consulte el estatus antes de proceder.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs border-t border-zinc-100 pt-4">
           
           <div class="lg:col-span-7 space-y-4">
             <div>
-              <label class="block font-semibold text-zinc-700 mb-1">Seleccionar Orden de Servicio Pendiente de Pago <span class="text-orange-600">*</span></label>
+              <label class="block font-semibold text-zinc-700 mb-1">Seleccionar Vehículo Terminado Pendiente de Pago <span class="text-orange-600">*</span></label>
               <select id="pago_selectFolio" onchange="cargarDetallePago()" class="wf-input w-full p-2.5 rounded-xl border border-zinc-300 bg-white font-bold text-xs">
-                <!-- Se llena dinámicamente con órdenes activas -->
+                <!-- Se llena dinámicamente solo con órdenes en estado 'Terminado' -->
               </select>
             </div>
 
@@ -602,7 +602,7 @@
               </div>
             </div>
 
-            <button onclick="procesarCobroEfectivo()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2">
+            <button id="btnConfirmarPagoEfectivo" onclick="procesarCobroEfectivo()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2">
               <span>💳 Confirmar Pago y Entregar Comprobante</span>
               <span>→</span>
             </button>
@@ -667,15 +667,15 @@
         </div>
         <div class="flex justify-between border-t pt-1 font-bold text-zinc-900">
           <span>Total Pagado:</span>
-          <span id="ticketPagoMontoTotal">$2,650.00 MXN</span>
+          <span id="ticketPagoMontoTotal">$3,050.00 MXN</span>
         </div>
         <div class="flex justify-between text-zinc-600">
           <span>Efectivo Entregado:</span>
-          <span id="ticketPagoRecibido">$3,000.00 MXN</span>
+          <span id="ticketPagoRecibido">$3,500.00 MXN</span>
         </div>
         <div class="flex justify-between text-emerald-700 font-bold">
           <span>Cambio Entregado:</span>
-          <span id="ticketPagoCambio">$350.00 MXN</span>
+          <span id="ticketPagoCambio">$450.00 MXN</span>
         </div>
       </div>
 
@@ -998,27 +998,40 @@
         renderizarTrabajosAdicionales();
       } else if (caso === 'CU06') {
         document.getElementById('vistaCU06').classList.remove('hidden');
-        document.getElementById('indicadorCasoUsoActivo').innerText = "CU-06: Registrar Pago de Servicio (Efectivo)";
+        document.getElementById('indicadorCasoUsoActivo').innerText = "CU-06: Registrar Pago de Servicio (Exclusivo Vehículos Terminados)";
         inicializarModuloPago();
       }
     }
 
-    // LÓGICA CASO DE USO 6: REGISTRAR PAGO DE SERVICIO
+    // LÓGICA CASO DE USO 6: REGISTRAR PAGO DE SERVICIO (RESTRICCIÓN: SOLO TERMINADOS)
     function inicializarModuloPago() {
       const select = document.getElementById('pago_selectFolio');
-      const ordenesPendientes = ordenesActivas.filter(o => !o.pagado);
+      // VALIDACIÓN: Solo se filtran órdenes no pagadas Y que tengan estado 'Terminado'
+      const ordenesTerminadas = ordenesActivas.filter(o => !o.pagado && o.estado === 'Terminado');
 
-      if (ordenesPendientes.length === 0) {
-        select.innerHTML = `<option value="">-- No hay órdenes pendientes de cobro --</option>`;
-        document.getElementById('desglosePagoCuenta').innerHTML = `<p class="text-zinc-400 italic text-center">Todas las órdenes de servicio están liquidadas.</p>`;
+      if (ordenesTerminadas.length === 0) {
+        select.innerHTML = `<option value="">-- No hay vehículos en estatus "Terminado" listos para cobro --</option>`;
+        document.getElementById('desglosePagoCuenta').innerHTML = `
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-center space-y-1">
+            <span class="text-lg">⚠️</span>
+            <p class="font-bold text-xs">No hay vehículos listos para cobrar</p>
+            <p class="text-[11px]">Consulte el estatus en el módulo <strong>CU-02</strong>. Únicamente cuando el mecánico marque la orden como <strong>"Terminado"</strong> se habilitará la opción de pago en esta caja.</p>
+          </div>
+        `;
         document.getElementById('pagoTotalMostrar').innerText = "$0.00";
         document.getElementById('pagoCambioMostrar').innerText = "$0.00";
+        document.getElementById('btnConfirmarPagoEfectivo').disabled = true;
+        document.getElementById('btnConfirmarPagoEfectivo').classList.add('opacity-50', 'cursor-not-allowed');
         totalCalculadoPagoActual = 0;
+        renderizarHistorialPagos();
         return;
       }
 
-      select.innerHTML = ordenesPendientes.map(o => `
-        <option value="${o.folio}">${o.folio} - ${o.auto} (${o.cliente}) - [Estatus: ${o.estado}]</option>
+      document.getElementById('btnConfirmarPagoEfectivo').disabled = false;
+      document.getElementById('btnConfirmarPagoEfectivo').classList.remove('opacity-50', 'cursor-not-allowed');
+
+      select.innerHTML = ordenesTerminadas.map(o => `
+        <option value="${o.folio}">${o.folio} - ${o.auto} (${o.cliente}) - [✓ Estatus: ${o.estado}]</option>
       `).join('');
 
       cargarDetallePago();
@@ -1039,10 +1052,13 @@
 
       desglose.innerHTML = `
         <div class="flex justify-between items-center border-b pb-2">
-          <span class="font-bold text-zinc-900">${ord.auto} (${ord.placas})</span>
+          <div>
+            <span class="font-bold text-zinc-900 block">${ord.auto} (${ord.placas})</span>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">✓ Estatus: ${ord.estado}</span>
+          </div>
           <span class="text-blue-700 font-mono font-bold">${ord.folio}</span>
         </div>
-        <div class="space-y-1.5 text-zinc-700">
+        <div class="space-y-1.5 text-zinc-700 pt-1">
           <div class="flex justify-between">
             <span>Cliente Titular:</span>
             <strong class="text-zinc-900">${ord.cliente}</strong>
@@ -1053,12 +1069,12 @@
           </div>
           ${extrasAprobados.map(e => `
             <div class="flex justify-between text-purple-700 text-[11px] pl-2 border-l-2 border-purple-300">
-              <span>+ Extra: ${e.concepto}</span>
+              <span>+ Extra Autorizado: ${e.concepto}</span>
               <span class="font-mono font-bold">$${e.monto.toFixed(2)} MXN</span>
             </div>
           `).join('')}
           <div class="flex justify-between border-t border-zinc-200 pt-2 text-sm font-black text-zinc-900">
-            <span>TOTAL LIQUIDACIÓN:</span>
+            <span>TOTAL A LIQUIDAR:</span>
             <span class="text-emerald-700 font-mono">$${totalCalculadoPagoActual.toFixed(2)} MXN</span>
           </div>
         </div>
@@ -1093,6 +1109,11 @@
         return;
       }
 
+      if (ord.estado !== 'Terminado') {
+        alert("No se puede efectuar el pago. El vehículo aún se encuentra en reparación o diagnóstico.");
+        return;
+      }
+
       if (isNaN(recibido) || recibido < totalCalculadoPagoActual) {
         alert("El dinero en efectivo recibido es insuficiente para cubrir el total de la orden.");
         return;
@@ -1104,7 +1125,6 @@
 
       // Actualizar estado de la orden
       ord.pagado = true;
-      ord.estado = 'Terminado';
 
       // Agregar al historial de pagos
       historialPagos.unshift({
@@ -1119,7 +1139,7 @@
         fecha: fechaFormateada
       });
 
-      // Llenar ticket
+      // Llenar ticket de pago
       document.getElementById('ticketPagoFolio').innerText = ord.folio;
       document.getElementById('ticketPagoCliente').innerText = ord.cliente;
       document.getElementById('ticketPagoMontoTotal').innerText = `$${totalCalculadoPagoActual.toFixed(2)} MXN`;
@@ -1152,7 +1172,7 @@
           <td class="p-3 text-zinc-500">${p.atendio}</td>
           <td class="p-3 text-right">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-              ✓ Pagado (Efectivo)
+              ✓ Liquidado (Efectivo)
             </span>
           </td>
         </tr>
@@ -1511,7 +1531,7 @@
         ord.estado = nuevoEstado;
       }
       if (nuevoEstado === 'Terminado') {
-        alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA.`);
+        alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA. Ahora está lista para cobro en la caja.`);
       }
       renderizarTarjetasBahia();
     }
