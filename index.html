@@ -638,6 +638,34 @@
 
     </main>
 
+    <!-- ======================================================== -->
+    <!-- CASO DE USO 7: CONSULTAR HISTORIAL VEHICULAR (CU-07)     -->
+    <!-- ======================================================== -->
+    <main id="vistaCU07" class="hidden max-w-7xl mx-auto w-full px-6 py-6 flex-1 space-y-6">
+      <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+        <div>
+          <span class="text-[10px] font-bold tracking-widest text-indigo-700 uppercase bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">CU-07 · Expediente de Unidad (Recepción / Admin)</span>
+          <h2 class="text-lg font-black text-zinc-900 mt-1">Consultar Historial Vehicular Completo</h2>
+          <p class="text-xs text-zinc-500">Busque por matrícula (placa), folio de servicio o nombre del cliente para consultar el expediente integral de intervenciones, diagnósticos y pagos.</p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-2 max-w-xl">
+          <input type="text" id="historialBusquedaInput" placeholder="Ej. UDR-456-D, MOR-243-D o Jacqueline..." class="wf-input uppercase tracking-wider text-xs font-semibold px-4 py-2.5 rounded-xl border border-zinc-300 flex-1 focus:outline-none focus:border-indigo-600">
+          <button onclick="ejecutarConsultaHistorialVehicular()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow">
+            📂 Buscar Historial
+          </button>
+        </div>
+      </div>
+
+      <div id="resultadoHistorialContainer" class="space-y-6">
+        <!-- Renderizado dinámico del expediente -->
+        <div class="wf-card bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm text-center text-zinc-400 space-y-2">
+          <span class="text-3xl">🚗</span>
+          <p class="text-xs font-bold">Ingrese una placa o seleccione una búsqueda para visualizar el expediente técnico.</p>
+        </div>
+      </div>
+    </main>
+
   </div>
 
   <!-- MODAL: TICKET DE COBRO EN EFECTIVO EXITOSO -->
@@ -694,7 +722,7 @@
         ✓
       </div>
       <div>
-        <span class="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded">Comprobante y Cuenta Creada</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">Comprobante y Cuenta Creada</span>
         <h3 class="text-base font-bold text-zinc-900 mt-1">Orden Registrada Exitosamente</h3>
         <p class="text-xs text-zinc-500">Se generaron las credenciales de acceso para el cliente.</p>
       </div>
@@ -747,14 +775,14 @@
         folio: 'MP-2026-1522',
         placas: 'MOR-243-D',
         telefono: '7771234567',
-        auto: 'Nissan Versa',
+        auto: 'Nissan Versa 2020',
         cliente: 'Juan Perez',
         mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
         falla: 'El cliente manifiesta ruido extraño y apagado repentino unos momentos despues de encender el auto',
         costoBase: 1200.00,
         estado: 'Terminado',
-        pagado: false,
-        hora: new Date().toISOString()
+        pagado: true,
+        hora: '2026-11-09 10:15'
       },
       {
         id: 2,
@@ -766,9 +794,9 @@
         mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
         falla: 'Revisión de mantenimiento preventivo y afinación general.',
         costoBase: 1800.00,
-        estado: 'En diagnóstico',
+        estado: 'Terminado',
         pagado: false,
-        hora: new Date().toISOString()
+        hora: '2026-11-09 12:30'
       }
     ];
 
@@ -800,14 +828,14 @@
     let historialPagos = [
       {
         id: 1,
-        folio: 'MP-2026-1102',
-        cliente: 'Pedro Ramírez',
-        auto: 'Toyota Corolla (ABC-123-A)',
-        total: 1500.00,
-        recibido: 2000.00,
-        cambio: 500.00,
+        folio: 'MP-2026-1522',
+        cliente: 'Juan Perez',
+        auto: 'Nissan Versa (MOR-243-D)',
+        total: 3050.00,
+        recibido: 3500.00,
+        cambio: 450.00,
         atendio: 'Daniela Vargas',
-        fecha: '2026-11-08 16:45'
+        fecha: '2026-11-09 14:00'
       }
     ];
 
@@ -901,7 +929,7 @@
           </button>
         `;
       } else {
-        // Recepción y Administrador ven CU-06: Registrar Pago de Servicio
+        // Recepción y Administrador ven CU-06 (Pago) y CU-07 (Historial)
         nav.innerHTML = `
           <button onclick="cambiarCasoUso('CU01')" id="tabBtn_CU01" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition flex items-center space-x-1 shadow">
             <span>📋</span>
@@ -921,14 +949,18 @@
           </button>
           <button onclick="cambiarCasoUso('CU06')" id="tabBtn_CU06" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
             <span>💵</span>
-            <span>CU-06: Registrar Pago</span>
+            <span>CU-06: Pago</span>
+          </button>
+          <button onclick="cambiarCasoUso('CU07')" id="tabBtn_CU07" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition flex items-center space-x-1">
+            <span>📂</span>
+            <span>CU-07: Historial</span>
           </button>
         `;
       }
     }
 
     function actualizarEstiloPestañas(activo) {
-      ['CU01', 'CU02', 'CU03', 'CU04', 'CU05', 'CU06'].forEach(t => {
+      ['CU01', 'CU02', 'CU03', 'CU04', 'CU05', 'CU06', 'CU07'].forEach(t => {
         const btn = document.getElementById(`tabBtn_${t}`);
         if (btn) {
           if (t === activo) {
@@ -951,8 +983,8 @@
         return;
       }
 
-      if (caso === 'CU06' && (usuarioActivo.rol === 'Mecanico' || usuarioActivo.rol === 'Cliente')) {
-        alert("Acceso Restringido: El Caso de Uso 6 es exclusivo para Recepción y Administrador.");
+      if ((caso === 'CU06' || caso === 'CU07') && (usuarioActivo.rol === 'Mecanico' || usuarioActivo.rol === 'Cliente')) {
+        alert("Acceso Restringido: Este caso de uso es exclusivo para Recepción y Administrador.");
         return;
       }
 
@@ -962,6 +994,7 @@
       document.getElementById('vistaCU04').classList.add('hidden');
       document.getElementById('vistaCU05').classList.add('hidden');
       document.getElementById('vistaCU06').classList.add('hidden');
+      document.getElementById('vistaCU07').classList.add('hidden');
       document.getElementById('alertaError').classList.add('hidden');
 
       actualizarEstiloPestañas(caso);
@@ -1000,13 +1033,191 @@
         document.getElementById('vistaCU06').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-06: Registrar Pago de Servicio (Exclusivo Vehículos Terminados)";
         inicializarModuloPago();
+      } else if (caso === 'CU07') {
+        document.getElementById('vistaCU07').classList.remove('hidden');
+        document.getElementById('indicadorCasoUsoActivo').innerText = "CU-07: Consultar Historial Vehicular";
       }
+    }
+
+    // LÓGICA CASO DE USO 7: HISTORIAL VEHICULAR
+    function ejecutarConsultaHistorialVehicular() {
+      const query = document.getElementById('historialBusquedaInput').value.trim().toLowerCase();
+      const contenedor = document.getElementById('resultadoHistorialContainer');
+
+      if (!query) {
+        alert("Por favor ingrese una placa, folio o nombre de cliente para realizar la búsqueda.");
+        return;
+      }
+
+      // Filtrar órdenes coincidentes
+      const coincidencias = ordenesActivas.filter(o => 
+        o.placas.toLowerCase().includes(query) || 
+        o.folio.toLowerCase().includes(query) || 
+        o.cliente.toLowerCase().includes(query)
+      );
+
+      if (coincidencias.length === 0) {
+        contenedor.innerHTML = `
+          <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
+            <span class="text-2xl">🔍</span>
+            <h3 class="font-bold text-sm">No se encontraron expedientes</h3>
+            <p class="text-xs text-amber-700">No se localizaron registros coincidentes con el criterio: <strong>${query}</strong></p>
+          </div>
+        `;
+        return;
+      }
+
+      // Tomar la primera coincidencia para armar el expediente principal
+      const vehiculoPrincipal = coincidencias[0];
+      const historiaOrdenes = ordenesActivas.filter(o => o.placas === vehiculoPrincipal.placas);
+      const historiaExtras = trabajosAdicionales.filter(t => t.auto.includes(vehiculoPrincipal.placas));
+      const historiaPagos = historialPagos.filter(p => p.auto.includes(vehiculoPrincipal.placas));
+
+      contenedor.innerHTML = `
+        <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-6">
+          
+          <!-- Encabezado de la Ficha Técnica -->
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 border-zinc-100 gap-4">
+            <div>
+              <span class="text-[10px] font-bold tracking-widest text-indigo-700 uppercase bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">Expediente Vehicular Activo</span>
+              <h2 class="text-xl font-black text-zinc-900 mt-1">${vehiculoPrincipal.auto}</h2>
+              <p class="text-xs font-mono font-bold text-orange-600 mt-0.5">Placas: ${vehiculoPrincipal.placas}</p>
+            </div>
+            <div class="bg-zinc-50 p-3 rounded-xl border border-zinc-200 text-xs text-right">
+              <span class="block text-zinc-400 font-bold text-[10px] uppercase">Cliente Propietario</span>
+              <strong class="text-zinc-800 text-sm">${vehiculoPrincipal.cliente}</strong>
+              <span class="block text-zinc-500 font-mono mt-0.5">Tel: ${vehiculoPrincipal.telefono}</span>
+            </div>
+          </div>
+
+          <!-- Historial de Órdenes de Servicio -->
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center space-x-1">
+              <span>📋 Historial de Órdenes de Servicio (${historiaOrdenes.length})</span>
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                  <tr>
+                    <th class="p-3">Folio</th>
+                    <th class="p-3">Fecha / Hora</th>
+                    <th class="p-3">Falla Reportada</th>
+                    <th class="p-3">Mecánico</th>
+                    <th class="p-3">Estatus Servicio</th>
+                    <th class="p-3 text-right">Estado Pago</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-100 font-medium">
+                  ${historiaOrdenes.map(o => `
+                    <tr class="hover:bg-zinc-50 transition">
+                      <td class="p-3 font-mono font-bold text-blue-700">${o.folio}</td>
+                      <td class="p-3 font-mono text-zinc-500 text-[11px]">${o.hora}</td>
+                      <td class="p-3 text-zinc-700 max-w-xs">${o.falla}</td>
+                      <td class="p-3 text-zinc-600">${o.mecanico}</td>
+                      <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${obtenerColorEstado(o.estado)}">
+                          ${o.estado}
+                        </span>
+                      </td>
+                      <td class="p-3 text-right">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${o.pagado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                          ${o.pagado ? '✓ Liquidado' : '⏳ Pendiente'}
+                        </span>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Historial de Trabajos Adicionales -->
+          <div class="space-y-3 pt-4 border-t border-zinc-100">
+            <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center space-x-1">
+              <span>➕ Historial de Trabajos Adicionales Solicitados (${historiaExtras.length})</span>
+            </h3>
+            ${historiaExtras.length === 0 ? `
+              <p class="text-xs text-zinc-400 italic bg-zinc-50 p-3 rounded-lg text-center">No hay registros de trabajos adicionales para este vehículo.</p>
+            ` : `
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                    <tr>
+                      <th class="p-3">Folio Orden</th>
+                      <th class="p-3">Concepto Extra</th>
+                      <th class="p-3">Justificación</th>
+                      <th class="p-3">Costo</th>
+                      <th class="p-3 text-right">Respuesta Cliente</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-zinc-100 font-medium">
+                    ${historiaExtras.map(e => `
+                      <tr class="hover:bg-zinc-50 transition">
+                        <td class="p-3 font-mono font-bold text-blue-700">${e.folio}</td>
+                        <td class="p-3 font-bold text-zinc-800">${e.concepto}</td>
+                        <td class="p-3 text-zinc-500 italic text-[11px]">${e.justificacion}</td>
+                        <td class="p-3 font-mono font-bold text-purple-700">$${e.monto.toFixed(2)}</td>
+                        <td class="p-3 text-right">
+                          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${e.estadoAutorizacion === 'Aprobado' ? 'bg-emerald-100 text-emerald-800' : (e.estadoAutorizacion === 'Rechazado' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800')}">
+                            ${e.estadoAutorizacion}
+                          </span>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+
+          <!-- Historial de Liquidaciones de Caja -->
+          <div class="space-y-3 pt-4 border-t border-zinc-100">
+            <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center space-x-1">
+              <span>💵 Registro de Transacciones de Pago (${historiaPagos.length})</span>
+            </h3>
+            ${historiaPagos.length === 0 ? `
+              <p class="text-xs text-zinc-400 italic bg-zinc-50 p-3 rounded-lg text-center">No hay comprobantes de pago registrados para este vehículo.</p>
+            ` : `
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                    <tr>
+                      <th class="p-3">Folio</th>
+                      <th class="p-3">Fecha Pago</th>
+                      <th class="p-3">Método</th>
+                      <th class="p-3">Monto Total</th>
+                      <th class="p-3">Atendido por</th>
+                      <th class="p-3 text-right">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-zinc-100 font-medium">
+                    ${historiaPagos.map(p => `
+                      <tr class="hover:bg-zinc-50 transition">
+                        <td class="p-3 font-mono font-bold text-blue-700">${p.folio}</td>
+                        <td class="p-3 font-mono text-zinc-500 text-[11px]">${p.fecha}</td>
+                        <td class="p-3 font-bold text-emerald-700">Efectivo</td>
+                        <td class="p-3 font-mono font-black text-zinc-900">$${p.total.toFixed(2)} MXN</td>
+                        <td class="p-3 text-zinc-600">${p.atendio}</td>
+                        <td class="p-3 text-right">
+                          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            ✓ Pago Concluido
+                          </span>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+
+        </div>
+      `;
     }
 
     // LÓGICA CASO DE USO 6: REGISTRAR PAGO DE SERVICIO (RESTRICCIÓN: SOLO TERMINADOS)
     function inicializarModuloPago() {
       const select = document.getElementById('pago_selectFolio');
-      // VALIDACIÓN: Solo se filtran órdenes no pagadas Y que tengan estado 'Terminado'
       const ordenesTerminadas = ordenesActivas.filter(o => !o.pagado && o.estado === 'Terminado');
 
       if (ordenesTerminadas.length === 0) {
@@ -1494,7 +1705,7 @@
           <div>
             <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
               <span class="font-mono font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${ord.folio}</span>
-              <span class="text-[10px] text-zinc-400 font-mono">${new Date(ord.hora).toLocaleTimeString()}</span>
+              <span class="text-[10px] text-zinc-400 font-mono">${ord.hora}</span>
             </div>
             <div class="mt-3">
               <h4 class="text-sm font-black text-zinc-900">${ord.auto}</h4>
