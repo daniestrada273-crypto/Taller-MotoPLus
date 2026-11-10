@@ -389,7 +389,7 @@
       <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
         <div>
           <span class="text-[10px] font-bold tracking-widest text-blue-700 uppercase bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">CU-02 · Consulta en Tiempo Real</span>
-          <h2 class="text-lg font-black text-zinc-900 mt-1">Consulta de Estatus Vehicular (Cliente / Recepción / Admin)</h2>
+          <h2 class="text-lg font-black text-zinc-900 mt-1">Consulta de Estatus Vehicular</h2>
           <p class="text-xs text-zinc-500">Ingrese la placa del automóvil (ej. <strong>UDR-456-D</strong> o <strong>MOR-243-D</strong>) o el número de folio para rastrear su avance en el taller.</p>
         </div>
         
@@ -760,6 +760,8 @@
 
   <!-- SCRIPT -->
   <script>
+    const API_URL = 'http://localhost:3000';
+
     let usuarioActivo = {
       rol: 'Recepcionista',
       nombre: 'Daniela Vargas',
@@ -769,75 +771,41 @@
     let listaDanios = [];
     let totalCalculadoPagoActual = 0;
 
-    let ordenesActivas = [
-      {
-        id: 1,
-        folio: 'MP-2026-1522',
-        placas: 'MOR-243-D',
-        telefono: '7771234567',
-        auto: 'Nissan Versa 2020',
-        cliente: 'Juan Perez',
-        mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
-        falla: 'El cliente manifiesta ruido extraño y apagado repentino unos momentos despues de encender el auto',
-        costoBase: 1200.00,
-        estado: 'Terminado',
-        pagado: true,
-        hora: '2026-11-09 10:15'
-      },
-      {
-        id: 2,
-        folio: 'MP-2026-6409',
-        placas: 'UDR-456-D',
-        telefono: '7779876543',
-        auto: 'Chevrolet Onix 2022',
-        cliente: 'Jacqueline Vargas Estrada',
-        mecanico: 'Roberto Sánchez (Elevador 1 - Motor)',
-        falla: 'Revisión de mantenimiento preventivo y afinación general.',
-        costoBase: 1800.00,
-        estado: 'Terminado',
-        pagado: false,
-        hora: '2026-11-09 12:30'
-      }
-    ];
+    let ordenesActivas = [];
+    let bitacoraLlamadas = [];
+    let trabajosAdicionales = [];
+    let historialPagos = [];
 
-    let bitacoraLlamadas = [
-      {
-        id: 1,
-        fecha: '2026-11-09 09:30',
-        quien: 'Carlos Mendoza (777-555-0199)',
-        motivo: 'Consulta de costo para cambio de balatas delanteras',
-        devuelta: 'Sí'
-      }
-    ];
+    // Función global para sincronizar datos con PostgreSQL a través del backend
+    async function cargarDatosDesdeServidor() {
+      try {
+        const [resOrdenes, resLlamadas, resExtras, resPagos] = await Promise.all([
+          fetch(`${API_URL}/api/ordenes`),
+          fetch(`${API_URL}/api/llamadas`),
+          fetch(`${API_URL}/api/trabajos-adicionales`),
+          fetch(`${API_URL}/api/pagos`)
+        ]);
 
-    let trabajosAdicionales = [
-      {
-        id: 1,
-        folio: 'MP-2026-1522',
-        auto: 'Nissan Versa (MOR-243-D)',
-        cliente: 'Juan Perez',
-        concepto: 'Reemplazo de banda de distribución y polea tensora',
-        monto: 1850.00,
-        justificacion: 'Al revisar el ruido del motor se detectó desgaste severo.',
-        solicitadoPor: 'Roberto Sánchez (Mecánico)',
-        estadoAutorizacion: 'Aprobado',
-        fecha: '2026-11-09 11:15'
-      }
-    ];
+        if (resOrdenes.ok) ordenesActivas = await resOrdenes.json();
+        if (resLlamadas.ok) bitacoraLlamadas = await resLlamadas.json();
+        if (resExtras.ok) trabajosAdicionales = await resExtras.json();
+        if (resPagos.ok) historialPagos = await resPagos.json();
 
-    let historialPagos = [
-      {
-        id: 1,
-        folio: 'MP-2026-1522',
-        cliente: 'Juan Perez',
-        auto: 'Nissan Versa (MOR-243-D)',
-        total: 3050.00,
-        recibido: 3500.00,
-        cambio: 450.00,
-        atendio: 'Daniela Vargas',
-        fecha: '2026-11-09 14:00'
+        if (!document.getElementById('vistaCU06').classList.contains('hidden')) {
+          inicializarModuloPago();
+        }
+
+        if (!document.getElementById('vistaCU07').classList.contains('hidden')) {
+          renderizarHistorialVehicularReciente();
+        }
+
+        if (!document.getElementById('vistaCU05').classList.contains('hidden')) {
+          renderizarTrabajosAdicionales();
+        }
+      } catch (error) {
+        console.error("Error al conectar con el servidor backend:", error);
       }
-    ];
+    }
 
     function seleccionarRol(rol, nombre, defaultVal) {
       usuarioActivo = { rol, nombre };
@@ -866,10 +834,13 @@
       }
     }
 
-    function iniciarSesion(event) {
+    async function iniciarSesion(event) {
       event.preventDefault();
       const usuarioInput = document.getElementById('loginEmail').value.trim();
       const passInput = document.getElementById('loginPass').value.trim();
+
+      // Cargar datos frescos de la BD antes de validar credenciales
+      await cargarDatosDesdeServidor();
 
       if (usuarioActivo.rol === 'Cliente') {
         const clienteEncontrado = ordenesActivas.find(o => 
@@ -877,7 +848,7 @@
         );
 
         if (!clienteEncontrado) {
-          alert("Credenciales inválidas. Verifique que la Placa y el Teléfono Principal coincidan con una orden registrada.");
+          alert("Credenciales inválidas. Verifique que la Placa y el Teléfono Principal coincidan con una orden registrada en la BD.");
           return;
         }
 
@@ -929,7 +900,6 @@
           </button>
         `;
       } else {
-        // Recepción y Administrador ven CU-06 (Pago) y CU-07 (Historial)
         nav.innerHTML = `
           <button onclick="cambiarCasoUso('CU01')" id="tabBtn_CU01" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition flex items-center space-x-1 shadow">
             <span>📋</span>
@@ -977,16 +947,154 @@
       document.getElementById('pantallaLogin').classList.remove('hidden');
     }
 
-    function cambiarCasoUso(caso) {
+    function normalizarTexto(valor) {
+      return (valor || '').toString().trim().toLowerCase();
+    }
+
+    function obtenerFechaOrden(orden) {
+      const candidata = orden?.fecha_registro || orden?.fecha || orden?.fecha_hora || orden?.fecha_creacion || orden?.created_at || orden?.fecha_alta;
+      if (!candidata) return null;
+
+      const fecha = new Date(candidata);
+      if (!isNaN(fecha.getTime())) return fecha;
+
+      const texto = String(candidata);
+      const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+
+      const dmY = texto.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+      if (dmY) return new Date(Number(dmY[3]), Number(dmY[2]) - 1, Number(dmY[1]));
+
+      return null;
+    }
+
+    function esOrdenReciente(orden, dias = 30) {
+      const fecha = obtenerFechaOrden(orden);
+      if (!fecha) return false;
+      const diferencia = Date.now() - fecha.getTime();
+      return diferencia >= 0 && diferencia <= dias * 24 * 60 * 60 * 1000;
+    }
+
+    function estaPagadaLaOrden(folio) {
+      return historialPagos.some(p => String(p.folio_orden || '').toUpperCase() === String(folio || '').toUpperCase());
+    }
+
+    function esRecepcionOAdmin() {
+      return usuarioActivo.rol === 'Recepcionista' || usuarioActivo.rol === 'Administrador';
+    }
+
+    function limpiarFormularioPago() {
+      const select = document.getElementById('pago_selectFolio');
+      const desglose = document.getElementById('desglosePagoCuenta');
+      if (select) select.innerHTML = '';
+      if (desglose) desglose.innerHTML = '';
+      const total = document.getElementById('pagoTotalMostrar');
+      const recibido = document.getElementById('pagoMontoRecibido');
+      const cambio = document.getElementById('pagoCambioMostrar');
+      if (total) total.innerText = '$0.00';
+      if (recibido) recibido.value = '';
+      if (cambio) {
+        cambio.innerText = '$0.00';
+        cambio.className = 'text-lg text-emerald-400 font-black';
+      }
+      totalCalculadoPagoActual = 0;
+    }
+
+    function abrirHistorialPorPlaca(placa) {
+      const input = document.getElementById('historialBusquedaInput');
+      if (input) input.value = placa || '';
+      ejecutarConsultaHistorialVehicular();
+    }
+
+    function abrirEstatusPorPlaca(placa) {
+      const input = document.getElementById('consultaPlacaFolio');
+      if (input) input.value = placa || '';
+      ejecutarConsultaEstatus();
+    }
+
+    function renderizarHistorialVehicularReciente() {
+      const contenedor = document.getElementById('resultadoHistorialContainer');
+      const recientes = ordenesActivas
+        .filter(o => esOrdenReciente(o, 30))
+        .sort((a, b) => {
+          const fa = obtenerFechaOrden(a)?.getTime() || 0;
+          const fb = obtenerFechaOrden(b)?.getTime() || 0;
+          return fb - fa;
+        });
+
+      if (recientes.length === 0) {
+        contenedor.innerHTML = `
+          <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
+            <span class="text-2xl">🕒</span>
+            <h3 class="font-bold text-sm">Sin vehículos atendidos en el último mes</h3>
+            <p class="text-xs text-amber-700">Puede usar la barra de búsqueda para localizar un vehículo por placa, folio o cliente.</p>
+          </div>
+        `;
+        return;
+      }
+
+      contenedor.innerHTML = `
+        <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-zinc-100">
+            <div>
+              <span class="text-[10px] font-bold tracking-widest text-indigo-700 uppercase bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">Recientes · Últimos 30 días</span>
+              <h3 class="text-sm font-black text-zinc-900 mt-1">Vehículos / Clientes atendidos recientemente</h3>
+            </div>
+            <span class="text-[11px] text-zinc-500">Total: ${recientes.length}</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                <tr>
+                  <th class="p-3">Fecha</th>
+                  <th class="p-3">Cliente</th>
+                  <th class="p-3">Vehículo</th>
+                  <th class="p-3">Placas</th>
+                  <th class="p-3">Estado</th>
+                  <th class="p-3 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-100 font-medium">
+                ${recientes.map(o => {
+                  const fecha = obtenerFechaOrden(o);
+                  const textoFecha = fecha ? fecha.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: '2-digit' }) : (o.hora || 'N/D');
+                  return `
+                    <tr class="hover:bg-zinc-50 transition">
+                      <td class="p-3 font-mono text-zinc-500 text-[11px]">${textoFecha}</td>
+                      <td class="p-3 font-bold text-zinc-800">${o.cliente || ''}</td>
+                      <td class="p-3 text-zinc-700">${o.auto || ''}</td>
+                      <td class="p-3 font-mono font-bold text-orange-600">${o.placas || ''}</td>
+                      <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${obtenerColorEstado(o.estado)}">${o.estado || ''}</span>
+                      </td>
+                      <td class="p-3 text-right">
+                        <button onclick="abrirHistorialPorPlaca('${o.placas || ''}')" class="text-indigo-600 hover:underline font-bold text-[11px]">
+                          Ver historial
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    async function cambiarCasoUso(caso) {
       if (caso === 'CU04' && usuarioActivo.rol !== 'Mecanico') {
         alert("Acceso Restringido: El Caso de Uso 4 es exclusivo para mecánicos.");
         return;
       }
 
-      if ((caso === 'CU06' || caso === 'CU07') && (usuarioActivo.rol === 'Mecanico' || usuarioActivo.rol === 'Cliente')) {
+      if ((caso === 'CU06' || caso === 'CU07') && !esRecepcionOAdmin()) {
         alert("Acceso Restringido: Este caso de uso es exclusivo para Recepción y Administrador.");
         return;
       }
+
+      // Sincronizar datos cada vez que se cambia de módulo
+      await cargarDatosDesdeServidor();
 
       document.getElementById('vistaCU01').classList.add('hidden');
       document.getElementById('vistaCU02').classList.add('hidden');
@@ -1009,6 +1117,8 @@
         if (usuarioActivo.rol === 'Cliente' && usuarioActivo.placaAsociada) {
           document.getElementById('consultaPlacaFolio').value = usuarioActivo.placaAsociada;
           ejecutarConsultaEstatus();
+        } else {
+          renderizarConsultaEstatusReciente();
         }
       } else if (caso === 'CU03' && usuarioActivo.rol !== 'Mecanico' && usuarioActivo.rol !== 'Cliente') {
         document.getElementById('vistaCU03').classList.remove('hidden');
@@ -1022,7 +1132,7 @@
         document.getElementById('vistaCU05').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-05: Gestionar Autorización de Trabajos Adicionales";
         
-        if (usuarioActivo.rol !== 'Cliente') {
+        if (usuarioActivo.rol === 'Mecanico') {
           document.getElementById('btnNuevaSolicitudExtra').classList.remove('hidden');
         } else {
           document.getElementById('btnNuevaSolicitudExtra').classList.add('hidden');
@@ -1036,171 +1146,83 @@
       } else if (caso === 'CU07') {
         document.getElementById('vistaCU07').classList.remove('hidden');
         document.getElementById('indicadorCasoUsoActivo').innerText = "CU-07: Consultar Historial Vehicular";
+        renderizarHistorialVehicularReciente();
+        setTimeout(() => {
+          const input = document.getElementById('historialBusquedaInput');
+          if (input) input.focus();
+        }, 0);
       }
     }
 
     // LÓGICA CASO DE USO 7: HISTORIAL VEHICULAR
-    function ejecutarConsultaHistorialVehicular() {
-      const query = document.getElementById('historialBusquedaInput').value.trim().toLowerCase();
+    async function ejecutarConsultaHistorialVehicular() {
+      const query = document.getElementById('historialBusquedaInput').value.trim();
       const contenedor = document.getElementById('resultadoHistorialContainer');
 
       if (!query) {
-        alert("Por favor ingrese una placa, folio o nombre de cliente para realizar la búsqueda.");
+        renderizarHistorialVehicularReciente();
         return;
       }
 
-      // Filtrar órdenes coincidentes
-      const coincidencias = ordenesActivas.filter(o => 
-        o.placas.toLowerCase().includes(query) || 
-        o.folio.toLowerCase().includes(query) || 
-        o.cliente.toLowerCase().includes(query)
-      );
+      try {
+        const res = await fetch(`${API_URL}/api/vehiculos/historial?q=${encodeURIComponent(query)}`);
+        const vehiculosEncontrados = await res.json();
 
-      if (coincidencias.length === 0) {
+        if (vehiculosEncontrados.length === 0) {
+          contenedor.innerHTML = `
+            <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
+              <span class="text-2xl">🔍</span>
+              <h3 class="font-bold text-sm">No se encontraron expedientes</h3>
+              <p class="text-xs text-amber-700">No se localizaron registros coincidentes con el criterio: <strong>${query}</strong></p>
+            </div>
+          `;
+          return;
+        }
+
+        const vehiculoPrincipal = vehiculosEncontrados[0];
+        const historiaOrdenes = ordenesActivas.filter(o => o.placas.toUpperCase() === vehiculoPrincipal.placas.toUpperCase());
+        const historiaExtras = trabajosAdicionales.filter(t => t.auto && t.auto.toUpperCase().includes(vehiculoPrincipal.placas.toUpperCase()));
+        const historiaPagos = historialPagos.filter(p => p.placas && p.placas.toUpperCase() === vehiculoPrincipal.placas.toUpperCase());
+
         contenedor.innerHTML = `
-          <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
-            <span class="text-2xl">🔍</span>
-            <h3 class="font-bold text-sm">No se encontraron expedientes</h3>
-            <p class="text-xs text-amber-700">No se localizaron registros coincidentes con el criterio: <strong>${query}</strong></p>
-          </div>
-        `;
-        return;
-      }
-
-      // Tomar la primera coincidencia para armar el expediente principal
-      const vehiculoPrincipal = coincidencias[0];
-      const historiaOrdenes = ordenesActivas.filter(o => o.placas === vehiculoPrincipal.placas);
-      const historiaExtras = trabajosAdicionales.filter(t => t.auto.includes(vehiculoPrincipal.placas));
-      const historiaPagos = historialPagos.filter(p => p.auto.includes(vehiculoPrincipal.placas));
-
-      contenedor.innerHTML = `
-        <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-6">
-          
-          <!-- Encabezado de la Ficha Técnica -->
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 border-zinc-100 gap-4">
-            <div>
-              <span class="text-[10px] font-bold tracking-widest text-indigo-700 uppercase bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">Expediente Vehicular Activo</span>
-              <h2 class="text-xl font-black text-zinc-900 mt-1">${vehiculoPrincipal.auto}</h2>
-              <p class="text-xs font-mono font-bold text-orange-600 mt-0.5">Placas: ${vehiculoPrincipal.placas}</p>
-            </div>
-            <div class="bg-zinc-50 p-3 rounded-xl border border-zinc-200 text-xs text-right">
-              <span class="block text-zinc-400 font-bold text-[10px] uppercase">Cliente Propietario</span>
-              <strong class="text-zinc-800 text-sm">${vehiculoPrincipal.cliente}</strong>
-              <span class="block text-zinc-500 font-mono mt-0.5">Tel: ${vehiculoPrincipal.telefono}</span>
-            </div>
-          </div>
-
-          <!-- Historial de Órdenes de Servicio -->
-          <div class="space-y-3">
-            <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center space-x-1">
-              <span>📋 Historial de Órdenes de Servicio (${historiaOrdenes.length})</span>
-            </h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
-                  <tr>
-                    <th class="p-3">Folio</th>
-                    <th class="p-3">Fecha / Hora</th>
-                    <th class="p-3">Falla Reportada</th>
-                    <th class="p-3">Mecánico</th>
-                    <th class="p-3">Estatus Servicio</th>
-                    <th class="p-3 text-right">Estado Pago</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-100 font-medium">
-                  ${historiaOrdenes.map(o => `
-                    <tr class="hover:bg-zinc-50 transition">
-                      <td class="p-3 font-mono font-bold text-blue-700">${o.folio}</td>
-                      <td class="p-3 font-mono text-zinc-500 text-[11px]">${o.hora}</td>
-                      <td class="p-3 text-zinc-700 max-w-xs">${o.falla}</td>
-                      <td class="p-3 text-zinc-600">${o.mecanico}</td>
-                      <td class="p-3">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${obtenerColorEstado(o.estado)}">
-                          ${o.estado}
-                        </span>
-                      </td>
-                      <td class="p-3 text-right">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${o.pagado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                          ${o.pagado ? '✓ Liquidado' : '⏳ Pendiente'}
-                        </span>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Historial de Trabajos Adicionales -->
-          <div class="space-y-3 pt-4 border-t border-zinc-100">
-            <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center space-x-1">
-              <span>➕ Historial de Trabajos Adicionales Solicitados (${historiaExtras.length})</span>
-            </h3>
-            ${historiaExtras.length === 0 ? `
-              <p class="text-xs text-zinc-400 italic bg-zinc-50 p-3 rounded-lg text-center">No hay registros de trabajos adicionales para este vehículo.</p>
-            ` : `
-              <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
-                    <tr>
-                      <th class="p-3">Folio Orden</th>
-                      <th class="p-3">Concepto Extra</th>
-                      <th class="p-3">Justificación</th>
-                      <th class="p-3">Costo</th>
-                      <th class="p-3 text-right">Respuesta Cliente</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-zinc-100 font-medium">
-                    ${historiaExtras.map(e => `
-                      <tr class="hover:bg-zinc-50 transition">
-                        <td class="p-3 font-mono font-bold text-blue-700">${e.folio}</td>
-                        <td class="p-3 font-bold text-zinc-800">${e.concepto}</td>
-                        <td class="p-3 text-zinc-500 italic text-[11px]">${e.justificacion}</td>
-                        <td class="p-3 font-mono font-bold text-purple-700">$${e.monto.toFixed(2)}</td>
-                        <td class="p-3 text-right">
-                          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${e.estadoAutorizacion === 'Aprobado' ? 'bg-emerald-100 text-emerald-800' : (e.estadoAutorizacion === 'Rechazado' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800')}">
-                            ${e.estadoAutorizacion}
-                          </span>
-                        </td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
+          <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 border-zinc-100 gap-4">
+              <div>
+                <span class="text-[10px] font-bold tracking-widest text-indigo-700 uppercase bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">Expediente Vehicular Activo</span>
+                <h2 class="text-xl font-black text-zinc-900 mt-1">${vehiculoPrincipal.marca} ${vehiculoPrincipal.modelo} (${vehiculoPrincipal.anio})</h2>
+                <p class="text-xs font-mono font-bold text-orange-600 mt-0.5">Placas: ${vehiculoPrincipal.placas}</p>
               </div>
-            `}
-          </div>
+              <div class="bg-zinc-50 p-3 rounded-xl border border-zinc-200 text-xs text-right">
+                <span class="block text-zinc-400 font-bold text-[10px] uppercase">Cliente Propietario</span>
+                <strong class="text-zinc-800 text-sm">${vehiculoPrincipal.cliente}</strong>
+                <span class="block text-zinc-500 font-mono mt-0.5">Tel: ${vehiculoPrincipal.telefono_principal}</span>
+              </div>
+            </div>
 
-          <!-- Historial de Liquidaciones de Caja -->
-          <div class="space-y-3 pt-4 border-t border-zinc-100">
-            <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center space-x-1">
-              <span>💵 Registro de Transacciones de Pago (${historiaPagos.length})</span>
-            </h3>
-            ${historiaPagos.length === 0 ? `
-              <p class="text-xs text-zinc-400 italic bg-zinc-50 p-3 rounded-lg text-center">No hay comprobantes de pago registrados para este vehículo.</p>
-            ` : `
+            <!-- Historial de Órdenes de Servicio -->
+            <div class="space-y-3">
+              <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider">📋 Historial de Órdenes de Servicio (${historiaOrdenes.length})</h3>
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                   <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
                     <tr>
                       <th class="p-3">Folio</th>
-                      <th class="p-3">Fecha Pago</th>
-                      <th class="p-3">Método</th>
-                      <th class="p-3">Monto Total</th>
-                      <th class="p-3">Atendido por</th>
-                      <th class="p-3 text-right">Estado</th>
+                      <th class="p-3">Fecha / Hora</th>
+                      <th class="p-3">Falla Reportada</th>
+                      <th class="p-3">Mecánico</th>
+                      <th class="p-3">Estatus Servicio</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-zinc-100 font-medium">
-                    ${historiaPagos.map(p => `
+                    ${historiaOrdenes.map(o => `
                       <tr class="hover:bg-zinc-50 transition">
-                        <td class="p-3 font-mono font-bold text-blue-700">${p.folio}</td>
-                        <td class="p-3 font-mono text-zinc-500 text-[11px]">${p.fecha}</td>
-                        <td class="p-3 font-bold text-emerald-700">Efectivo</td>
-                        <td class="p-3 font-mono font-black text-zinc-900">$${p.total.toFixed(2)} MXN</td>
-                        <td class="p-3 text-zinc-600">${p.atendio}</td>
-                        <td class="p-3 text-right">
-                          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                            ✓ Pago Concluido
+                        <td class="p-3 font-mono font-bold text-blue-700">${o.folio}</td>
+                        <td class="p-3 font-mono text-zinc-500 text-[11px]">${o.hora}</td>
+                        <td class="p-3 text-zinc-700 max-w-xs">${o.falla}</td>
+                        <td class="p-3 text-zinc-600">${o.mecanico}</td>
+                        <td class="p-3">
+                          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${obtenerColorEstado(o.estado)}">
+                            ${o.estado}
                           </span>
                         </td>
                       </tr>
@@ -1208,28 +1230,107 @@
                   </tbody>
                 </table>
               </div>
-            `}
-          </div>
+            </div>
 
-        </div>
-      `;
+            <!-- Historial de Trabajos Adicionales -->
+            <div class="space-y-3 pt-4 border-t border-zinc-100">
+              <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider">➕ Historial de Trabajos Adicionales Solicitados (${historiaExtras.length})</h3>
+              ${historiaExtras.length === 0 ? `
+                <p class="text-xs text-zinc-400 italic bg-zinc-50 p-3 rounded-lg text-center">No hay registros de trabajos adicionales para este vehículo.</p>
+              ` : `
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                      <tr>
+                        <th class="p-3">Folio Orden</th>
+                        <th class="p-3">Concepto Extra</th>
+                        <th class="p-3">Justificación</th>
+                        <th class="p-3">Costo</th>
+                        <th class="p-3 text-right">Respuesta Cliente</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 font-medium">
+                      ${historiaExtras.map(e => `
+                        <tr class="hover:bg-zinc-50 transition">
+                          <td class="p-3 font-mono font-bold text-blue-700">${e.folio_orden}</td>
+                          <td class="p-3 font-bold text-zinc-800">${e.concepto}</td>
+                          <td class="p-3 text-zinc-500 italic text-[11px]">${e.justificacion || ''}</td>
+                          <td class="p-3 font-mono font-bold text-purple-700">$${parseFloat(e.costo).toFixed(2)}</td>
+                          <td class="p-3 text-right">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${e.estado_autorizacion === 'Aprobado' ? 'bg-emerald-100 text-emerald-800' : (e.estado_autorizacion === 'Rechazado' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800')}">
+                              ${e.estado_autorizacion}
+                            </span>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `}
+            </div>
+
+            <!-- Historial de Pagos -->
+            <div class="space-y-3 pt-4 border-t border-zinc-100">
+              <h3 class="text-xs font-bold text-zinc-800 uppercase tracking-wider">💵 Registro de Transacciones de Pago (${historiaPagos.length})</h3>
+              ${historiaPagos.length === 0 ? `
+                <p class="text-xs text-zinc-400 italic bg-zinc-50 p-3 rounded-lg text-center">No hay comprobantes de pago registrados para este vehículo.</p>
+              ` : `
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                      <tr>
+                        <th class="p-3">Folio</th>
+                        <th class="p-3">Fecha Pago</th>
+                        <th class="p-3">Método</th>
+                        <th class="p-3">Monto Total</th>
+                        <th class="p-3">Atendido por</th>
+                        <th class="p-3 text-right">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 font-medium">
+                      ${historiaPagos.map(p => `
+                        <tr class="hover:bg-zinc-50 transition">
+                          <td class="p-3 font-mono font-bold text-blue-700">${p.folio_orden}</td>
+                          <td class="p-3 font-mono text-zinc-500 text-[11px]">${p.fecha_pago}</td>
+                          <td class="p-3 font-bold text-emerald-700">Efectivo</td>
+                          <td class="p-3 font-mono font-black text-zinc-900">$${parseFloat(p.monto_total).toFixed(2)} MXN</td>
+                          <td class="p-3 text-zinc-600">${p.atendido_por}</td>
+                          <td class="p-3 text-right">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              ✓ Pago Concluido
+                            </span>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `}
+            </div>
+
+          </div>
+        `;
+      } catch (err) {
+        console.error("Error al consultar el historial:", err);
+      }
     }
 
-    // LÓGICA CASO DE USO 6: REGISTRAR PAGO DE SERVICIO (RESTRICCIÓN: SOLO TERMINADOS)
+    // LÓGICA CASO DE USO 6: REGISTRAR PAGO DE SERVICIO
     function inicializarModuloPago() {
       const select = document.getElementById('pago_selectFolio');
-      const ordenesTerminadas = ordenesActivas.filter(o => !o.pagado && o.estado === 'Terminado');
+      const ordenesTerminadas = ordenesActivas.filter(o => o.estado === 'Terminado' && !estaPagadaLaOrden(o.folio));
 
       if (ordenesTerminadas.length === 0) {
-        select.innerHTML = `<option value="">-- No hay vehículos en estatus "Terminado" listos para cobro --</option>`;
+        select.innerHTML = `<option value="">-- No hay vehículos en estatus "Terminado" pendientes de cobro --</option>`;
         document.getElementById('desglosePagoCuenta').innerHTML = `
           <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-center space-y-1">
             <span class="text-lg">⚠️</span>
-            <p class="font-bold text-xs">No hay vehículos listos para cobrar</p>
-            <p class="text-[11px]">Consulte el estatus en el módulo <strong>CU-02</strong>. Únicamente cuando el mecánico marque la orden como <strong>"Terminado"</strong> se habilitará la opción de pago en esta caja.</p>
+            <p class="font-bold text-xs">No existen vehículos pendientes de cobro.</p>
+            <p class="text-[11px]">Todos los vehículos terminados ya fueron liquidados o no hay órdenes listas para pago.</p>
           </div>
         `;
         document.getElementById('pagoTotalMostrar').innerText = "$0.00";
+        document.getElementById('pagoMontoRecibido').value = '';
         document.getElementById('pagoCambioMostrar').innerText = "$0.00";
         document.getElementById('btnConfirmarPagoEfectivo').disabled = true;
         document.getElementById('btnConfirmarPagoEfectivo').classList.add('opacity-50', 'cursor-not-allowed');
@@ -1256,9 +1357,9 @@
 
       if (!ord) return;
 
-      const extrasAprobados = trabajosAdicionales.filter(t => t.folio === folio && t.estadoAutorizacion === 'Aprobado');
-      const montoExtras = extrasAprobados.reduce((sum, item) => sum + item.monto, 0);
-      const costoBase = ord.costoBase || 1500.00;
+      const extrasAprobados = trabajosAdicionales.filter(t => t.folio_orden === folio && t.estado_autorizacion === 'Aprobado');
+      const montoExtras = extrasAprobados.reduce((sum, item) => sum + parseFloat(item.costo || 0), 0);
+      const costoBase = 1500.00;
       totalCalculadoPagoActual = costoBase + montoExtras;
 
       desglose.innerHTML = `
@@ -1281,7 +1382,7 @@
           ${extrasAprobados.map(e => `
             <div class="flex justify-between text-purple-700 text-[11px] pl-2 border-l-2 border-purple-300">
               <span>+ Extra Autorizado: ${e.concepto}</span>
-              <span class="font-mono font-bold">$${e.monto.toFixed(2)} MXN</span>
+              <span class="font-mono font-bold">$${parseFloat(e.costo).toFixed(2)} MXN</span>
             </div>
           `).join('')}
           <div class="flex justify-between border-t border-zinc-200 pt-2 text-sm font-black text-zinc-900">
@@ -1310,7 +1411,7 @@
       }
     }
 
-    function procesarCobroEfectivo() {
+    async function procesarCobroEfectivo() {
       const folio = document.getElementById('pago_selectFolio').value;
       const recibido = parseFloat(document.getElementById('pagoMontoRecibido').value);
       const ord = ordenesActivas.find(o => o.folio === folio);
@@ -1331,37 +1432,44 @@
       }
 
       const cambio = recibido - totalCalculadoPagoActual;
-      const ahora = new Date();
-      const fechaFormateada = `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-${String(ahora.getDate()).padStart(2,'0')} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
 
-      // Actualizar estado de la orden
-      ord.pagado = true;
+      try {
+        const respuesta = await fetch(`${API_URL}/api/pagos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            folio_orden: ord.folio,
+            monto_total: totalCalculadoPagoActual,
+            efectivo_recibido: recibido,
+            cambio: cambio,
+            atendido_por: usuarioActivo.nombre
+          })
+        });
 
-      // Agregar al historial de pagos
-      historialPagos.unshift({
-        id: historialPagos.length + 1,
-        folio: ord.folio,
-        cliente: ord.cliente,
-        auto: `${ord.auto} (${ord.placas})`,
-        total: totalCalculadoPagoActual,
-        recibido: recibido,
-        cambio: cambio,
-        atendio: usuarioActivo.nombre,
-        fecha: fechaFormateada
-      });
+        const resultado = await respuesta.json();
+        if (resultado.success) {
+          // Llenar ticket de pago
+          document.getElementById('ticketPagoFolio').innerText = ord.folio;
+          document.getElementById('ticketPagoCliente').innerText = ord.cliente;
+          document.getElementById('ticketPagoMontoTotal').innerText = `$${totalCalculadoPagoActual.toFixed(2)} MXN`;
+          document.getElementById('ticketPagoRecibido').innerText = `$${recibido.toFixed(2)} MXN`;
+          document.getElementById('ticketPagoCambio').innerText = `$${cambio.toFixed(2)} MXN`;
 
-      // Llenar ticket de pago
-      document.getElementById('ticketPagoFolio').innerText = ord.folio;
-      document.getElementById('ticketPagoCliente').innerText = ord.cliente;
-      document.getElementById('ticketPagoMontoTotal').innerText = `$${totalCalculadoPagoActual.toFixed(2)} MXN`;
-      document.getElementById('ticketPagoRecibido').innerText = `$${recibido.toFixed(2)} MXN`;
-      document.getElementById('ticketPagoCambio').innerText = `$${cambio.toFixed(2)} MXN`;
-
-      document.getElementById('modalTicketPago').classList.remove('hidden');
+          document.getElementById('modalTicketPago').classList.remove('hidden');
+          await cargarDatosDesdeServidor();
+          inicializarModuloPago();
+        } else {
+          alert("Error al registrar el pago en la BD: " + resultado.error);
+        }
+      } catch (error) {
+        console.error("Error al procesar pago:", error);
+        alert("Error de conexión con el servidor.");
+      }
     }
 
     function cerrarTicketPago() {
       document.getElementById('modalTicketPago').classList.add('hidden');
+      limpiarFormularioPago();
       inicializarModuloPago();
     }
 
@@ -1374,13 +1482,13 @@
 
       tbody.innerHTML = historialPagos.map(p => `
         <tr class="hover:bg-zinc-50 transition">
-          <td class="p-3 font-mono font-bold text-blue-700">${p.folio}</td>
-          <td class="p-3 font-bold text-zinc-800">${p.cliente}</td>
-          <td class="p-3 text-zinc-600">${p.auto}</td>
-          <td class="p-3 font-mono font-bold text-emerald-700">$${p.total.toFixed(2)}</td>
-          <td class="p-3 font-mono text-zinc-600">$${p.recibido.toFixed(2)}</td>
-          <td class="p-3 font-mono text-zinc-600">$${p.cambio.toFixed(2)}</td>
-          <td class="p-3 text-zinc-500">${p.atendio}</td>
+          <td class="p-3 font-mono font-bold text-blue-700">${p.folio_orden}</td>
+          <td class="p-3 font-bold text-zinc-800">${p.cliente || 'N/A'}</td>
+          <td class="p-3 text-zinc-600">${p.auto || p.placas || 'N/A'}</td>
+          <td class="p-3 font-mono font-bold text-emerald-700">$${parseFloat(p.monto_total).toFixed(2)}</td>
+          <td class="p-3 font-mono text-zinc-600">$${parseFloat(p.efectivo_recibido).toFixed(2)}</td>
+          <td class="p-3 font-mono text-zinc-600">$${parseFloat(p.cambio).toFixed(2)}</td>
+          <td class="p-3 text-zinc-500">${p.atendido_por}</td>
           <td class="p-3 text-right">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
               ✓ Liquidado (Efectivo)
@@ -1485,6 +1593,7 @@
       document.getElementById('alertaError').classList.add('hidden');
     }
 
+    // LÓGICA CASO DE USO 1: REGISTRAR ORDEN (CU-01)
     async function procesarRegistroOrden() {
       const nombre = document.getElementById('cli_nombre').value.trim();
       const apellidos = document.getElementById('cli_apellidos').value.trim();
@@ -1493,7 +1602,7 @@
       const placas = document.getElementById('veh_placas').value.trim().toUpperCase();
       const marca = document.getElementById('veh_marca').value.trim();
       const modelo = document.getElementById('veh_modelo').value.trim();
-      const anio = document.getElementById('veh_anio').value;
+      const anio = parseInt(document.getElementById('veh_anio').value);
       const color = document.getElementById('veh_color').value;
       const vin = document.getElementById('veh_vin').value;
       const gasolina = document.getElementById('inv_gasolina').value;
@@ -1509,31 +1618,36 @@
 
       document.getElementById('alertaError').classList.add('hidden');
 
-      const nuevoFolio = `MP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-      const nuevaOrden = {
-        id: ordenesActivas.length + 1,
-        folio: nuevoFolio,
-        placas: placas,
-        telefono: tel1,
-        auto: `${marca} ${modelo} ${anio}`.trim(),
-        cliente: `${nombre} ${apellidos}`.trim(),
-        mecanico: mecanico,
-        falla: falla,
-        costoBase: 1500.00,
-        estado: 'Ingresado',
-        pagado: false,
-        hora: new Date().toISOString()
-      };
+      try {
+        const respuesta = await fetch(`${API_URL}/api/ordenes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cliente: { nombre, apellidos, telefono1: tel1, telefono2: tel2 },
+            vehiculo: { placas, marca, modelo, anio, color, vin },
+            inventario: { combustible: gasolina, danos: listaDanios },
+            orden: { falla, mecanico, responsable: usuarioActivo.nombre }
+          })
+        });
 
-      ordenesActivas.unshift(nuevaOrden);
+        const resultado = await respuesta.json();
 
-      document.getElementById('ticketFolio').innerText = nuevoFolio;
-      document.getElementById('ticketCliente').innerText = `${nombre} ${apellidos}`;
-      document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas})`;
-      document.getElementById('ticketUsuario').innerText = placas;
-      document.getElementById('ticketPass').innerText = tel1;
+        if (resultado.success) {
+          document.getElementById('ticketFolio').innerText = resultado.folio;
+          document.getElementById('ticketCliente').innerText = `${nombre} ${apellidos}`;
+          document.getElementById('ticketVehiculo').innerText = `${marca} ${modelo} (${placas})`;
+          document.getElementById('ticketUsuario').innerText = placas;
+          document.getElementById('ticketPass').innerText = tel1;
 
-      document.getElementById('modalTicket').classList.remove('hidden');
+          document.getElementById('modalTicket').classList.remove('hidden');
+          await cargarDatosDesdeServidor();
+        } else {
+          alert("Error al guardar en la BD: " + resultado.error);
+        }
+      } catch (error) {
+        console.error("Error de red:", error);
+        alert("No se pudo conectar con el servidor backend en http://localhost:3000");
+      }
     }
 
     function cerrarTicket() {
@@ -1542,29 +1656,106 @@
     }
 
     // Lógica para CU-02: Consultar Estatus
-    function ejecutarConsultaEstatus() {
-      const criterio = document.getElementById('consultaPlacaFolio').value.trim().toUpperCase();
+    function renderizarConsultaEstatusReciente() {
       const contenedor = document.getElementById('resultadoConsultaContainer');
-      
-      if (!criterio) {
-        alert("Por favor ingrese una placa o número de folio para realizar la consulta.");
-        return;
-      }
+      const recientes = ordenesActivas
+        .filter(o => esOrdenReciente(o, 30))
+        .sort((a, b) => {
+          const fa = obtenerFechaOrden(a)?.getTime() || 0;
+          const fb = obtenerFechaOrden(b)?.getTime() || 0;
+          return fb - fa;
+        });
 
-      const encontrada = ordenesActivas.find(o => o.placas.toUpperCase() === criterio || o.folio.toUpperCase() === criterio);
-
-      if (!encontrada) {
+      if (recientes.length === 0) {
         contenedor.classList.remove('hidden');
         contenedor.innerHTML = `
           <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
-            <span class="text-2xl">🔍</span>
-            <h3 class="font-bold text-sm">No se encontraron registros</h3>
-            <p class="text-xs text-amber-700">No hay órdenes activas asociadas a la placa o folio: <strong>${criterio}</strong></p>
+            <span class="text-2xl">🕒</span>
+            <h3 class="font-bold text-sm">Sin órdenes recientes</h3>
+            <p class="text-xs text-amber-700">Puede buscar por placa, folio o nombre del cliente usando la barra superior.</p>
           </div>
         `;
         return;
       }
 
+      contenedor.classList.remove('hidden');
+      contenedor.innerHTML = `
+        <div class="wf-card bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-zinc-100">
+            <div>
+              <span class="text-[10px] font-bold tracking-widest text-blue-700 uppercase bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">Búsquedas recientes</span>
+              <h3 class="text-sm font-black text-zinc-900 mt-1">Vehículos atendidos en el último mes</h3>
+            </div>
+            <span class="text-[11px] text-zinc-500">Total: ${recientes.length}</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-zinc-50 text-zinc-500 uppercase font-bold text-[10px] border-b border-zinc-200">
+                <tr>
+                  <th class="p-3">Fecha</th>
+                  <th class="p-3">Cliente</th>
+                  <th class="p-3">Vehículo</th>
+                  <th class="p-3">Placas</th>
+                  <th class="p-3">Estado</th>
+                  <th class="p-3 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-100 font-medium">
+                ${recientes.map(o => {
+                  const fecha = obtenerFechaOrden(o);
+                  const textoFecha = fecha ? fecha.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: '2-digit' }) : (o.hora || 'N/D');
+                  return `
+                    <tr class="hover:bg-zinc-50 transition">
+                      <td class="p-3 font-mono text-zinc-500 text-[11px]">${textoFecha}</td>
+                      <td class="p-3 font-bold text-zinc-800">${o.cliente || ''}</td>
+                      <td class="p-3 text-zinc-700">${o.auto || ''}</td>
+                      <td class="p-3 font-mono font-bold text-orange-600">${o.placas || ''}</td>
+                      <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${obtenerColorEstado(o.estado)}">${o.estado || ''}</span></td>
+                      <td class="p-3 text-right">
+                        <button onclick="abrirEstatusPorPlaca('${o.placas || ''}')" class="text-blue-600 hover:underline font-bold text-[11px]">
+                          Ver estatus
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function ejecutarConsultaEstatus() {
+      const criterio = normalizarTexto(document.getElementById('consultaPlacaFolio').value);
+      const contenedor = document.getElementById('resultadoConsultaContainer');
+      
+      if (!criterio) {
+        renderizarConsultaEstatusReciente();
+        return;
+      }
+
+      const coincidencias = ordenesActivas.filter(o => {
+        const placas = normalizarTexto(o.placas);
+        const folio = normalizarTexto(o.folio);
+        const cliente = normalizarTexto(o.cliente);
+        const auto = normalizarTexto(o.auto);
+        return placas === criterio || folio === criterio || cliente.includes(criterio) || auto.includes(criterio);
+      });
+
+      if (!coincidencias.length) {
+        contenedor.classList.remove('hidden');
+        contenedor.innerHTML = `
+          <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
+            <span class="text-2xl">🔍</span>
+            <h3 class="font-bold text-sm">No se encontraron registros</h3>
+            <p class="text-xs text-amber-700">No hay órdenes activas asociadas con: <strong>${document.getElementById('consultaPlacaFolio').value.trim()}</strong></p>
+          </div>
+        `;
+        return;
+      }
+
+      const encontrada = coincidencias[0];
       contenedor.classList.remove('hidden');
       contenedor.innerHTML = generarHtmlProgresoEstatus(encontrada);
     }
@@ -1605,7 +1796,7 @@
           </div>
 
           <div class="py-4 px-2">
-            <div class="text-xs font-bold text-zinc-700 mb-4">Progreso de la Orden (Sólo Consulta):</div>
+            <div class="text-xs font-bold text-zinc-700 mb-4">Progreso de la Orden:</div>
             <div class="flex items-center justify-between relative">
               <div class="absolute left-6 right-6 top-4 h-1 bg-zinc-200 z-0"></div>
               ${pasosHtml}
@@ -1631,7 +1822,7 @@
     }
 
     // Lógica para CU-03: Bitácora de Llamadas
-    function guardarLlamadaBitacora() {
+    async function guardarLlamadaBitacora() {
       const quien = document.getElementById('llamada_quien').value.trim();
       const motivo = document.getElementById('llamada_motivo').value.trim();
       const devuelta = document.getElementById('llamada_devuelta').value;
@@ -1644,23 +1835,32 @@
 
       document.getElementById('alertaError').classList.add('hidden');
 
-      const ahora = new Date();
-      const fechaFormateada = `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-${String(ahora.getDate()).padStart(2,'0')} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+      try {
+        const respuesta = await fetch(`${API_URL}/api/llamadas`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cliente_contacto: quien,
+            telefono: "7770000000",
+            motivo_llamada: motivo,
+            folio_orden: null
+          })
+        });
 
-      bitacoraLlamadas.unshift({
-        id: bitacoraLlamadas.length + 1,
-        fecha: fechaFormateada,
-        quien,
-        motivo,
-        devuelta
-      });
+        const resultado = await respuesta.json();
+        if (resultado.success) {
+          document.getElementById('llamada_quien').value = '';
+          document.getElementById('llamada_motivo').value = '';
+          document.getElementById('llamada_devuelta').value = 'No';
 
-      document.getElementById('llamada_quien').value = '';
-      document.getElementById('llamada_motivo').value = '';
-      document.getElementById('llamada_devuelta').value = 'No';
-
-      renderizarBitacoraLlamadas();
-      alert("Llamada registrada correctamente en la bitácora.");
+          await cargarDatosDesdeServidor();
+          renderizarBitacoraLlamadas();
+          alert("Llamada guardada permanentemente en la base de datos.");
+        }
+      } catch (error) {
+        console.error("Error al guardar llamada:", error);
+        alert("Error de conexión con el servidor.");
+      }
     }
 
     function renderizarBitacoraLlamadas() {
@@ -1672,16 +1872,16 @@
 
       tbody.innerHTML = bitacoraLlamadas.map(l => `
         <tr class="hover:bg-zinc-50 transition">
-          <td class="p-3 font-mono text-zinc-500">${l.fecha}</td>
-          <td class="p-3 font-bold text-zinc-800">${l.quien}</td>
-          <td class="p-3 text-zinc-600">${l.motivo}</td>
+          <td class="p-3 font-mono text-zinc-500">${l.fecha_hora || l.fecha}</td>
+          <td class="p-3 font-bold text-zinc-800">${l.cliente_contacto || l.quien}</td>
+          <td class="p-3 text-zinc-600">${l.motivo_llamada || l.motivo}</td>
           <td class="p-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${l.devuelta === 'Sí' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-              ${l.devuelta === 'Sí' ? '✓ Devuelta / Atendida' : '⏳ Pendiente'}
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${(l.estado_llamada === 'Sí (Atendida)' || l.devuelta === 'Sí') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+              ${(l.estado_llamada === 'Sí (Atendida)' || l.devuelta === 'Sí') ? '✓ Devuelta / Atendida' : '⏳ Pendiente'}
             </span>
           </td>
           <td class="p-3 text-right">
-            <button onclick="alternarDevolucionLlamada(${l.id})" class="text-blue-600 hover:underline font-bold text-[11px]">
+            <button onclick="alternarDevolucionLlamada(${l.id_llamada || l.id}, '${l.estado_llamada || l.devuelta}')" class="text-blue-600 hover:underline font-bold text-[11px]">
               Cambiar Estatus
             </button>
           </td>
@@ -1689,15 +1889,25 @@
       `).join('');
     }
 
-    function alternarDevolucionLlamada(id) {
-      const registro = bitacoraLlamadas.find(l => l.id === id);
-      if (registro) {
-        registro.devuelta = registro.devuelta === 'Sí' ? 'No' : 'Sí';
-        renderizarBitacoraLlamadas();
+    async function alternarDevolucionLlamada(id, estadoActual) {
+      const nuevoEstado = (estadoActual === 'Sí' || estadoActual === 'Sí (Atendida)') ? 'Pendiente' : 'Sí (Atendida)';
+      try {
+        const res = await fetch(`${API_URL}/api/llamadas/${id}/estatus`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado_llamada: nuevoEstado })
+        });
+        const resultado = await res.json();
+        if (resultado.success) {
+          await cargarDatosDesdeServidor();
+          renderizarBitacoraLlamadas();
+        }
+      } catch (error) {
+        console.error("Error al actualizar llamada:", error);
       }
     }
 
-    // Renderizado del Tablero de Bahías (CU-04: Exclusivo Mecánico)
+    // Renderizado del Tablero de Bahías (CU-04)
     function renderizarTarjetasBahia() {
       const contenedor = document.getElementById('contenedorTarjetasBahia');
       contenedor.innerHTML = ordenesActivas.map(ord => `
@@ -1736,19 +1946,37 @@
       `).join('');
     }
 
-    function cambiarEstadoOrden(folio, nuevoEstado) {
-      const ord = ordenesActivas.find(o => o.folio === folio);
-      if (ord) {
-        ord.estado = nuevoEstado;
+    async function cambiarEstadoOrden(folio, nuevoEstado) {
+      try {
+        const respuesta = await fetch(`${API_URL}/api/ordenes/${folio}/estatus`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estatus: nuevoEstado })
+        });
+
+        const resultado = await respuesta.json();
+        if (resultado.success) {
+          if (nuevoEstado === 'Terminado') {
+            alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA en la base de datos.`);
+          }
+          await cargarDatosDesdeServidor();
+          renderizarTarjetasBahia();
+        } else {
+          alert("Error al actualizar estatus: " + resultado.error);
+        }
+      } catch (error) {
+        console.error("Error al actualizar estatus:", error);
+        alert("Error de conexión con el servidor.");
       }
-      if (nuevoEstado === 'Terminado') {
-        alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA. Ahora está lista para cobro en la caja.`);
-      }
-      renderizarTarjetasBahia();
     }
 
     // Lógica para CU-05: Trabajos Adicionales
     function abrirFormularioTrabajoExtra() {
+      if (usuarioActivo.rol !== 'Mecanico') {
+        alert("Solo el mecánico puede solicitar trabajos adicionales.");
+        return;
+      }
+
       const selectFolio = document.getElementById('extra_folio');
       selectFolio.innerHTML = ordenesActivas.map(o => `
         <option value="${o.folio}">${o.folio} - ${o.auto} (${o.cliente})</option>
@@ -1756,7 +1984,12 @@
       document.getElementById('formularioTrabajoExtraContainer').classList.remove('hidden');
     }
 
-    function guardarSolicitudTrabajoExtra() {
+    async function guardarSolicitudTrabajoExtra() {
+      if (usuarioActivo.rol !== 'Mecanico') {
+        alert("Solo el mecánico puede solicitar trabajos adicionales.");
+        return;
+      }
+
       const folio = document.getElementById('extra_folio').value;
       const concepto = document.getElementById('extra_concepto').value.trim();
       const monto = parseFloat(document.getElementById('extra_monto').value);
@@ -1767,30 +2000,32 @@
         return;
       }
 
-      const ord = ordenesActivas.find(o => o.folio === folio);
-      const ahora = new Date();
-      const fechaFormateada = `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-${String(ahora.getDate()).padStart(2,'0')} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+      try {
+        const respuesta = await fetch(`${API_URL}/api/trabajos-adicionales`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            folio_orden: folio,
+            concepto: concepto,
+            justificacion: justificacion,
+            costo: monto
+          })
+        });
 
-      trabajosAdicionales.unshift({
-        id: trabajosAdicionales.length + 1,
-        folio: folio,
-        auto: ord ? ord.auto : 'Vehículo',
-        cliente: ord ? ord.cliente : 'Cliente',
-        concepto: concepto,
-        monto: monto,
-        justificacion: justificacion || 'Hallazgo durante servicio técnico.',
-        solicitadoPor: usuarioActivo.nombre,
-        estadoAutorizacion: 'Pendiente',
-        fecha: fechaFormateada
-      });
+        const resultado = await respuesta.json();
+        if (resultado.success) {
+          document.getElementById('extra_concepto').value = '';
+          document.getElementById('extra_monto').value = '';
+          document.getElementById('extra_justificacion').value = '';
+          document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden');
 
-      document.getElementById('extra_concepto').value = '';
-      document.getElementById('extra_monto').value = '';
-      document.getElementById('extra_justificacion').value = '';
-      document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden');
-
-      renderizarTrabajosAdicionales();
-      alert("Solicitud de trabajo adicional enviada al cliente.");
+          await cargarDatosDesdeServidor();
+          renderizarTrabajosAdicionales();
+          alert("Trabajo adicional registrado en la base de datos.");
+        }
+      } catch (error) {
+        console.error("Error al guardar trabajo extra:", error);
+      }
     }
 
     function renderizarTrabajosAdicionales() {
@@ -1798,7 +2033,7 @@
 
       let listaAMostrar = trabajosAdicionales;
       if (usuarioActivo.rol === 'Cliente' && usuarioActivo.placaAsociada) {
-        listaAMostrar = trabajosAdicionales.filter(t => t.auto.includes(usuarioActivo.placaAsociada));
+        listaAMostrar = trabajosAdicionales.filter(t => t.auto && t.auto.toUpperCase().includes(usuarioActivo.placaAsociada.toUpperCase()));
       }
 
       if (listaAMostrar.length === 0) {
@@ -1807,20 +2042,21 @@
       }
 
       contenedor.innerHTML = listaAMostrar.map(t => {
+        let estadoAuth = t.estado_autorizacion || t.estadoAutorizacion;
         let badgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
-        if (t.estadoAutorizacion === 'Aprobado') badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-        if (t.estadoAutorizacion === 'Rechazado') badgeColor = 'bg-red-100 text-red-800 border-red-200';
+        if (estadoAuth === 'Aprobado') badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        if (estadoAuth === 'Rechazado') badgeColor = 'bg-red-100 text-red-800 border-red-200';
 
         return `
           <div class="wf-card bg-white p-4 rounded-xl border border-zinc-200 shadow-sm space-y-3">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 gap-2 text-xs">
               <div class="flex items-center space-x-2">
-                <span class="font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.folio}</span>
-                <span class="font-bold text-zinc-800">${t.auto}</span>
-                <span class="text-zinc-500">| Cliente: <strong>${t.cliente}</strong></span>
+                <span class="font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.folio_orden || t.folio}</span>
+                <span class="font-bold text-zinc-800">${t.auto || 'Vehículo'}</span>
+                <span class="text-zinc-500">| Cliente: <strong>${t.cliente || ''}</strong></span>
               </div>
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">
-                ${t.estadoAutorizacion}
+                ${estadoAuth}
               </span>
             </div>
 
@@ -1828,42 +2064,53 @@
               <div class="md:col-span-2">
                 <span class="text-zinc-400 block font-bold text-[10px] uppercase">Concepto / Refacción Adicional</span>
                 <p class="font-bold text-zinc-900">${t.concepto}</p>
-                <p class="text-zinc-500 text-[11px] mt-1">Justificación: <em>"${t.justificacion}"</em></p>
+                <p class="text-zinc-500 text-[11px] mt-1">Justificación: <em>"${t.justificacion || ''}"</em></p>
               </div>
               <div>
                 <span class="text-zinc-400 block font-bold text-[10px] uppercase">Costo Estimado Extra</span>
-                <p class="text-base font-black text-purple-700">$${t.monto.toFixed(2)} MXN</p>
+                <p class="text-base font-black text-purple-700">$${parseFloat(t.costo || t.monto).toFixed(2)} MXN</p>
               </div>
               <div class="flex flex-col justify-center items-end space-y-1">
-                ${t.estadoAutorizacion === 'Pendiente' ? `
+                ${estadoAuth === 'Pendiente' ? (usuarioActivo.rol === 'Cliente' || usuarioActivo.rol === 'Recepcionista' || usuarioActivo.rol === 'Administrador') ? `
                   <div class="flex gap-2">
-                    <button onclick="responderTrabajoExtra(${t.id}, 'Aprobado')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
+                    <button onclick="responderTrabajoExtra(${t.id_adicional || t.id}, 'Aprobado')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
                       ✓ Autorizar
                     </button>
-                    <button onclick="responderTrabajoExtra(${t.id}, 'Rechazado')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
+                    <button onclick="responderTrabajoExtra(${t.id_adicional || t.id}, 'Rechazado')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
                       ✕ Rechazar
                     </button>
                   </div>
+                ` : `
+                  <span class="text-[11px] font-mono text-zinc-400">Solicitud enviada</span>
                 ` : `
                   <span class="text-[11px] font-mono text-zinc-400">Respuesta registrada</span>
                 `}
               </div>
             </div>
             <div class="text-[10px] text-zinc-400 font-mono border-t pt-1.5 flex justify-between">
-              <span>Solicitado por: ${t.solicitadoPor}</span>
-              <span>Fecha: ${t.fecha}</span>
+              <span>Fecha: ${t.fecha_registro || t.fecha}</span>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function responderTrabajoExtra(id, estado) {
-      const registro = trabajosAdicionales.find(t => t.id === id);
-      if (registro) {
-        registro.estadoAutorizacion = estado;
-        renderizarTrabajosAdicionales();
-        alert(`El trabajo adicional ha sido marcado como: ${estado.toUpperCase()}`);
+    async function responderTrabajoExtra(id, estado) {
+      try {
+        const respuesta = await fetch(`${API_URL}/api/trabajos-adicionales/${id}/autorizar`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado_autorizacion: estado })
+        });
+
+        const resultado = await respuesta.json();
+        if (resultado.success) {
+          await cargarDatosDesdeServidor();
+          renderizarTrabajosAdicionales();
+          alert(`Autorización actualizada a: ${estado}`);
+        }
+      } catch (error) {
+        console.error("Error al autorizar trabajo extra:", error);
       }
     }
 
@@ -1877,6 +2124,35 @@
         default: return 'text-zinc-700';
       }
     }
+
+    // Inicializar carga de datos al abrir la página
+    window.addEventListener('DOMContentLoaded', async () => {
+      await cargarDatosDesdeServidor();
+
+      const inputConsulta = document.getElementById('consultaPlacaFolio');
+      if (inputConsulta) {
+        inputConsulta.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            ejecutarConsultaEstatus();
+          }
+        });
+      }
+
+      const inputHistorial = document.getElementById('historialBusquedaInput');
+      if (inputHistorial) {
+        inputHistorial.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            ejecutarConsultaHistorialVehicular();
+          }
+        });
+      }
+
+      if (!document.getElementById('pantallaLogin').classList.contains('hidden')) {
+        renderizarConsultaEstatusReciente();
+      }
+    });
   </script>
 </body>
 </html>

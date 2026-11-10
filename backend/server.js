@@ -15,7 +15,11 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Endpoint 1: Registrar nueva Orden de Servicio (Recepcionista)
+// ==========================================================
+// MÓDULOS EXISTENTES (CU-01, CU-02, CU-04)
+// ==========================================================
+
+// Endpoint 1: Registrar nueva Orden de Servicio (Recepcionista - CU-01)
 app.post('/api/ordenes', async (req, res) => {
   const client = await pool.connect();
   try {
@@ -23,21 +27,21 @@ app.post('/api/ordenes', async (req, res) => {
 
     const { cliente, vehiculo, inventario, orden } = req.body;
 
+    // Verificar si el vehículo ya tiene una orden activa (que no esté Terminada)
+    const ordenActiva = await client.query(
+      `SELECT folio FROM ORDEN_SERVICIO WHERE placas_vehiculo = $1 AND estatus != 'Terminado'`,
+      [vehiculo.placas]
+    );
+
+    if (ordenActiva.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        success: false, 
+        error: `El vehículo con placas ${vehiculo.placas} ya cuenta con una orden activa (${ordenActiva.rows[0].folio}).` 
+      });
+    }
 
     // A. Insertar Cliente
-// Antes de insertar la orden, verifica si ya tiene una activa (que no esté Terminada)
-const ordenActiva = await client.query(
-  `SELECT folio FROM ORDEN_SERVICIO WHERE placas_vehiculo = $1 AND estatus != 'Terminado'`,
-  [vehiculo.placas]
-);
-
-if (ordenActiva.rows.length > 0) {
-  await client.query('ROLLBACK');
-  return res.status(400).json({ 
-    success: false, 
-    error: `El vehículo con placas ${vehiculo.placas} ya cuenta con una orden activa (${ordenActiva.rows[0].folio}).` 
-  });
-}
     const resCliente = await client.query(
       `INSERT INTO CLIENTE (nombre, apellidos, telefono_principal, telefono_secundario)
        VALUES ($1, $2, $3, $4) RETURNING id_cliente`,
@@ -80,7 +84,7 @@ if (ordenActiva.rows.length > 0) {
   }
 });
 
-// Endpoint 2: Obtener órdenes activas para la vista de Bahía (Mecánico)
+// Endpoint 2: Obtener órdenes activas para la vista de Bahía (Mecánico - CU-02/CU-04)
 app.get('/api/ordenes', async (req, res) => {
   try {
     const query = `
@@ -100,7 +104,7 @@ app.get('/api/ordenes', async (req, res) => {
   }
 });
 
-// Endpoint 3: Actualizar estatus desde el módulo de Bahía
+// Endpoint 3: Actualizar estatus desde el módulo de Bahía (CU-04)
 app.patch('/api/ordenes/:folio/estatus', async (req, res) => {
   const { folio } = req.params;
   const { estatus } = req.body;
@@ -120,5 +124,155 @@ app.patch('/api/ordenes/:folio/estatus', async (req, res) => {
   }
 });
 
+// ==========================================================
+// ENDPOINTS PARA NUEVOS MÓDULOS (CU-03, CU-05, CU-06, CU-07)
+// ==========================================================
+
+// --- CU-03: BITÁCORA DE LLAMADAS ---
+app.get('/api/llamadas', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM BITACORA_LLAMADAS ORDER BY fecha_hora DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/llamadas', async (req, res) => {
+  const { cliente_contacto, telefono, motivo_llamada, folio_orden } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO BITACORA_LLAMADAS (cliente_contacto, telefono, motivo_llamada, folio_orden, estado_llamada)
+       VALUES ($1, $2, $3, $4, 'Pendiente') RETURNING *`,
+      [cliente_contacto, telefono, motivo_llamada, folio_orden || null]
+    );
+    res.status(201).json({ success: true, llamada: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.patch('/api/llamadas/:id/estatus', async (req, res) => {
+  const { id } = req.params;
+  const { estado_llamada } = req.body;
+  try {
+    await pool.query(
+      `UPDATE BITACORA_LLAMADAS SET estado_llamada = $1 WHERE id_llamada = $2`,
+      [estado_llamada, id]
+    );
+    res.json({ success: true, message: 'Estatus de llamada actualizado' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- CU-05: TRABAJOS ADICIONALES ---
+app.get('/api/trabajos-adicionales', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT t.*, v.marca || ' ' || v.modelo AS auto, c.nombre || ' ' || c.apellidos AS cliente
+      FROM TRABAJO_ADICIONAL t
+      JOIN ORDEN_SERVICIO o ON t.folio_orden = o.folio
+      JOIN VEHICULO v ON o.placas_vehiculo = v.placas
+      JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+      ORDER BY t.fecha_registro DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/trabajos-adicionales', async (req, res) => {
+  const { folio_orden, concepto, justificacion, costo } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO TRABAJO_ADICIONAL (folio_orden, concepto, justificacion, costo, estado_autorizacion)
+       VALUES ($1, $2, $3, $4, 'Pendiente') RETURNING *`,
+      [folio_orden, concepto, justificacion, costo]
+    );
+    res.status(201).json({ success: true, trabajo: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.patch('/api/trabajos-adicionales/:id/autorizar', async (req, res) => {
+  const { id } = req.params;
+  const { estado_autorizacion } = req.body; // 'Aprobado' o 'Rechazado'
+  try {
+    await pool.query(
+      `UPDATE TRABAJO_ADICIONAL SET estado_autorizacion = $1 WHERE id_adicional = $2`,
+      [estado_autorizacion, id]
+    );
+    res.json({ success: true, message: 'Autorización actualizada correctamente' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- CU-06: REGISTRAR PAGO (EFECTIVO) ---
+app.post('/api/pagos', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { folio_orden, monto_total, efectivo_recibido, cambio, atendido_por } = req.body;
+
+    const pagoRes = await client.query(
+      `INSERT INTO PAGO_SERVICIO (folio_orden, monto_total, efectivo_recibido, cambio, atendido_por)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [folio_orden, monto_total, efectivo_recibido, cambio, atendido_por]
+    );
+
+    // Actualizar el estado de la orden a 'Terminado' tras registrar la liquidación
+    await client.query(
+      `UPDATE ORDEN_SERVICIO SET estatus = 'Terminado' WHERE folio = $1`,
+      [folio_orden]
+    );
+
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, pago: pagoRes.rows[0] });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+app.get('/api/pagos', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT p.*, o.placas_vehiculo AS placas, v.marca || ' ' || v.modelo AS auto, c.nombre || ' ' || c.apellidos AS cliente
+      FROM PAGO_SERVICIO p
+      JOIN ORDEN_SERVICIO o ON p.folio_orden = o.folio
+      JOIN VEHICULO v ON o.placas_vehiculo = v.placas
+      JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+      ORDER BY p.fecha_pago DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// --- CU-07: HISTORIAL VEHICULAR ---
+app.get('/api/vehiculos/historial', async (req, res) => {
+  const { q } = req.query; // Texto de búsqueda (Placa, Folio o Cliente)
+  try {
+    const query = `
+      SELECT v.placas, v.marca, v.modelo, v.anio, v.color, v.vin,
+             c.nombre || ' ' || c.apellidos AS cliente, c.telefono_principal
+      FROM VEHICULO v
+      JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+      WHERE v.placas ILIKE $1 OR c.nombre ILIKE $1 OR c.apellidos ILIKE $1
+    `;
+    const result = await pool.query(query, [`%${q}%`]);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PORT = 3000;
-app.listen(PORT, () => console.log(` Servidor MotorPlus corriendo en http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Servidor MotorPlus corriendo en http://localhost:${PORT}`));
