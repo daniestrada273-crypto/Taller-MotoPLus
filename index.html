@@ -298,7 +298,7 @@
 
             <div>
               <span class="block font-semibold text-zinc-700 mb-1.5">Pertenencias e inventario a bordo:</span>
-              <div class="grid grid-cols-2 gap-2 text-[11px]">
+              <div id="listaPertenencias" class="grid grid-cols-2 gap-2 text-[11px]">
                 <label class="flex items-center space-x-1.5"><input type="checkbox" checked class="rounded text-orange-600"><span>Llanta refacción</span></label>
                 <label class="flex items-center space-x-1.5"><input type="checkbox" checked class="rounded text-orange-600"><span>Gato y llave</span></label>
                 <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded text-orange-600"><span>Cables corriente</span></label>
@@ -417,7 +417,11 @@
           <p class="text-xs text-zinc-500">Registre las llamadas entrantes de clientes, el motivo de la consulta y el estatus de seguimiento de la llamada.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs border-t border-zinc-100 pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs border-t border-zinc-100 pt-4">
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">Orden Relacionada <span class="text-orange-600">*</span></label>
+            <select id="llamada_folio" class="wf-input w-full p-2.5 rounded-lg border border-zinc-300 bg-white font-medium"></select>
+          </div>
           <div>
             <label class="block font-semibold text-zinc-700 mb-1">Quién Llamó (Nombre / Teléfono) <span class="text-orange-600">*</span></label>
             <input type="text" id="llamada_quien" placeholder="Ej. Juan Pérez (777-123-4567)" class="wf-input w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:border-blue-600">
@@ -506,7 +510,7 @@
         <!-- Formulario de Creación de Solicitud -->
         <div id="formularioTrabajoExtraContainer" class="hidden bg-purple-50/50 border border-purple-200 p-4 rounded-xl space-y-3 text-xs">
           <h3 class="font-bold text-purple-900">Nueva Solicitud de Trabajo Adicional</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label class="block font-semibold text-zinc-700 mb-1">Vehículo / Folio Asignado <span class="text-orange-600">*</span></label>
               <select id="extra_folio" class="wf-input w-full p-2 rounded-lg border border-zinc-300 bg-white font-medium">
@@ -518,8 +522,12 @@
               <input type="text" id="extra_concepto" placeholder="Ej. Rectificación de discos y cambio de balatas traseras" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600">
             </div>
             <div>
-              <label class="block font-semibold text-zinc-700 mb-1">Costo Estimado ($ MXN) <span class="text-orange-600">*</span></label>
-              <input type="number" id="extra_monto" placeholder="Ej. 1450" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600">
+              <label class="block font-semibold text-zinc-700 mb-1">Costo Refacción ($ MXN)</label>
+              <input type="number" id="extra_monto" min="0" placeholder="Ej. 1450" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-700 mb-1">Mano de Obra ($ MXN)</label>
+              <input type="number" id="extra_mano_obra" min="0" placeholder="Ej. 500" class="wf-input w-full p-2 rounded-lg border border-zinc-300 focus:outline-none focus:border-purple-600">
             </div>
           </div>
           <div>
@@ -528,7 +536,7 @@
           </div>
           <div class="flex justify-end gap-2">
             <button onclick="document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden')" class="px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-600 font-bold">Cancelar</button>
-            <button onclick="guardarSolicitudTrabajoExtra()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-1.5 rounded-lg transition">Enviar Solicitud a Cliente</button>
+            <button id="btnEnviarSolicitudExtra" onclick="guardarSolicitudTrabajoExtra()" class="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold px-4 py-1.5 rounded-lg transition">Enviar Solicitud a Cliente</button>
           </div>
         </div>
 
@@ -592,6 +600,11 @@
               </div>
 
               <div>
+                <label class="block text-zinc-300 font-semibold mb-1">Descuento ($ MXN)</label>
+                <input type="number" id="pagoDescuento" min="0" step="0.01" oninput="actualizarTotalesPago(); calcularCambioEfectivo()" placeholder="0.00" class="w-full bg-black border border-zinc-700 text-white font-mono text-sm font-bold p-2.5 rounded-lg focus:outline-none">
+              </div>
+
+              <div>
                 <label class="block text-zinc-300 font-semibold mb-1">Efectivo Recibido ($ MXN) <span class="text-orange-500">*</span></label>
                 <input type="number" id="pagoMontoRecibido" oninput="calcularCambioEfectivo()" placeholder="Ej. 3000" class="w-full bg-black border border-zinc-700 text-white font-mono text-base font-bold p-2.5 rounded-lg focus:outline-none focus:border-emerald-500">
               </div>
@@ -627,6 +640,7 @@
                 <th class="p-3">Cambio</th>
                 <th class="p-3">Atendió</th>
                 <th class="p-3 text-right">Estatus</th>
+                <th class="p-3 text-right">Comprobante</th>
               </tr>
             </thead>
             <tbody id="tablaHistorialPagos" class="divide-y divide-zinc-100 font-medium">
@@ -693,6 +707,18 @@
           <span class="text-zinc-500">Método:</span>
           <span class="font-bold text-emerald-700">Efectivo</span>
         </div>
+        <div class="flex justify-between border-t pt-1 text-zinc-600">
+          <span>Mano de obra:</span>
+          <span id="ticketPagoManoObra">$0.00 MXN</span>
+        </div>
+        <div class="flex justify-between text-zinc-600">
+          <span>Refacciones:</span>
+          <span id="ticketPagoRefacciones">$0.00 MXN</span>
+        </div>
+        <div class="flex justify-between text-zinc-600">
+          <span>Descuento:</span>
+          <span id="ticketPagoDescuento">$0.00 MXN</span>
+        </div>
         <div class="flex justify-between border-t pt-1 font-bold text-zinc-900">
           <span>Total Pagado:</span>
           <span id="ticketPagoMontoTotal">$3,050.00 MXN</span>
@@ -708,8 +734,11 @@
       </div>
 
       <div class="flex gap-2 text-xs">
+        <button onclick="imprimirComprobantePago()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold transition">
+          🖨️ Imprimir Comprobante
+        </button>
         <button onclick="cerrarTicketPago()" class="w-full py-2.5 bg-zinc-900 hover:bg-black text-white rounded-lg font-bold transition">
-          Imprimir Recibo y Cerrar
+          Cerrar
         </button>
       </div>
     </div>
@@ -770,11 +799,40 @@
 
     let listaDanios = [];
     let totalCalculadoPagoActual = 0;
+    let desglosePagoActual = null;   // desglose del cobro en pantalla
+    let comprobanteActual = null;    // datos del comprobante que se imprimirá
 
     let ordenesActivas = [];
     let bitacoraLlamadas = [];
     let trabajosAdicionales = [];
     let historialPagos = [];
+
+    // Petición al backend: lanza un Error con el mensaje real si el servidor responde con fallo
+    async function api(ruta, { method = 'GET', body } = {}) {
+      const opciones = { method };
+      if (body !== undefined) {
+        opciones.headers = { 'Content-Type': 'application/json' };
+        opciones.body = JSON.stringify(body);
+      }
+      const respuesta = await fetch(`${API_URL}${ruta}`, opciones);
+      let datos = null;
+      try { datos = await respuesta.json(); } catch (_) { /* respuesta sin JSON */ }
+      if (!respuesta.ok || (datos && datos.success === false)) {
+        throw new Error((datos && datos.error) || `El servidor respondió con error ${respuesta.status}`);
+      }
+      return datos;
+    }
+
+    // Formato de dinero; muestra guion cuando el dato no existe en la BD
+    function dinero(valor) {
+      const n = parseFloat(valor);
+      return isNaN(n) ? '—' : `$${n.toFixed(2)}`;
+    }
+
+    // Escapa texto antes de insertarlo como HTML
+    function esc(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
 
     // Función global para sincronizar datos con PostgreSQL a través del backend
     async function cargarDatosDesdeServidor() {
@@ -843,8 +901,14 @@
       await cargarDatosDesdeServidor();
 
       if (usuarioActivo.rol === 'Cliente') {
-        const clienteEncontrado = ordenesActivas.find(o => 
-          o.placas.toUpperCase() === usuarioInput.toUpperCase() && o.telefono === passInput
+        // Se ignoran espacios, guiones y símbolos para comparar placas y teléfono
+        const limpiarPlaca = (v) => (v || '').toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        const limpiarTel = (v) => (v || '').toString().replace(/\D/g, '');
+
+        const clienteEncontrado = ordenesActivas.find(o =>
+          limpiarPlaca(o.placas) === limpiarPlaca(usuarioInput) &&
+          limpiarTel(o.telefono) !== '' &&
+          limpiarTel(o.telefono) === limpiarTel(passInput)
         );
 
         if (!clienteEncontrado) {
@@ -945,6 +1009,8 @@
     function cerrarSesion() {
       document.getElementById('pantallaApp').classList.add('hidden');
       document.getElementById('pantallaLogin').classList.remove('hidden');
+      // Limpia la sesión anterior para que no queden datos de otro usuario
+      seleccionarRol('Recepcionista', 'Daniela Vargas', 'recepcion@motorplus.com');
     }
 
     function normalizarTexto(valor) {
@@ -952,7 +1018,7 @@
     }
 
     function obtenerFechaOrden(orden) {
-      const candidata = orden?.fecha_registro || orden?.fecha || orden?.fecha_hora || orden?.fecha_creacion || orden?.created_at || orden?.fecha_alta;
+      const candidata = orden?.fecha_ingreso || orden?.fecha_registro || orden?.fecha || orden?.fecha_hora || orden?.fecha_creacion || orden?.created_at || orden?.fecha_alta;
       if (!candidata) return null;
 
       const fecha = new Date(candidata);
@@ -993,6 +1059,9 @@
       const cambio = document.getElementById('pagoCambioMostrar');
       if (total) total.innerText = '$0.00';
       if (recibido) recibido.value = '';
+      const descuentoInput = document.getElementById('pagoDescuento');
+      if (descuentoInput) descuentoInput.value = '';
+      desglosePagoActual = null;
       if (cambio) {
         cambio.innerText = '$0.00';
         cambio.className = 'text-lg text-emerald-400 font-black';
@@ -1173,7 +1242,7 @@
             <div class="wf-card bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center text-amber-900 space-y-2">
               <span class="text-2xl">🔍</span>
               <h3 class="font-bold text-sm">No se encontraron expedientes</h3>
-              <p class="text-xs text-amber-700">No se localizaron registros coincidentes con el criterio: <strong>${query}</strong></p>
+              <p class="text-xs text-amber-700">No se localizaron registros coincidentes con el criterio: <strong>${esc(query)}</strong></p>
             </div>
           `;
           return;
@@ -1181,7 +1250,7 @@
 
         const vehiculoPrincipal = vehiculosEncontrados[0];
         const historiaOrdenes = ordenesActivas.filter(o => o.placas.toUpperCase() === vehiculoPrincipal.placas.toUpperCase());
-        const historiaExtras = trabajosAdicionales.filter(t => t.auto && t.auto.toUpperCase().includes(vehiculoPrincipal.placas.toUpperCase()));
+        const historiaExtras = trabajosAdicionales.filter(t => (t.placas || '').toUpperCase() === vehiculoPrincipal.placas.toUpperCase());
         const historiaPagos = historialPagos.filter(p => p.placas && p.placas.toUpperCase() === vehiculoPrincipal.placas.toUpperCase());
 
         contenedor.innerHTML = `
@@ -1294,7 +1363,7 @@
                           <td class="p-3 font-mono text-zinc-500 text-[11px]">${p.fecha_pago}</td>
                           <td class="p-3 font-bold text-emerald-700">Efectivo</td>
                           <td class="p-3 font-mono font-black text-zinc-900">$${parseFloat(p.monto_total).toFixed(2)} MXN</td>
-                          <td class="p-3 text-zinc-600">${p.atendido_por}</td>
+                          <td class="p-3 text-zinc-600">${esc(p.atendido_por || '—')}</td>
                           <td class="p-3 text-right">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
                               ✓ Pago Concluido
@@ -1335,6 +1404,8 @@
         document.getElementById('btnConfirmarPagoEfectivo').disabled = true;
         document.getElementById('btnConfirmarPagoEfectivo').classList.add('opacity-50', 'cursor-not-allowed');
         totalCalculadoPagoActual = 0;
+        desglosePagoActual = null;
+        document.getElementById('pagoDescuento').value = '';
         renderizarHistorialPagos();
         return;
       }
@@ -1352,49 +1423,102 @@
 
     function cargarDetallePago() {
       const folio = document.getElementById('pago_selectFolio').value;
-      const desglose = document.getElementById('desglosePagoCuenta');
       const ord = ordenesActivas.find(o => o.folio === folio);
-
       if (!ord) return;
 
       const extrasAprobados = trabajosAdicionales.filter(t => t.folio_orden === folio && t.estado_autorizacion === 'Aprobado');
-      const montoExtras = extrasAprobados.reduce((sum, item) => sum + parseFloat(item.costo || 0), 0);
-      const costoBase = 1500.00;
-      totalCalculadoPagoActual = costoBase + montoExtras;
+      const suma = (campo) => extrasAprobados.reduce((acc, e) => acc + (parseFloat(e[campo]) || 0), 0);
 
-      desglose.innerHTML = `
+      // El costo base lo fija el mecánico en la orden (por omisión $1,500)
+      const base = parseFloat(ord.costo_base);
+      const costoBase = Number.isFinite(base) ? base : 1500;
+
+      desglosePagoActual = {
+        folio,
+        ord,
+        costoBase,
+        extrasAprobados,
+        manoObra: costoBase + suma('costo_mano_obra'),
+        refacciones: suma('costo_refaccion'),
+        descuento: 0,
+        total: 0
+      };
+
+      document.getElementById('pagoDescuento').value = '';
+      document.getElementById('pagoMontoRecibido').value = '';
+      document.getElementById('pagoCambioMostrar').innerText = "$0.00";
+      actualizarTotalesPago();
+    }
+
+    // Recalcula subtotal, descuento y total, y dibuja el desglose en pantalla
+    function actualizarTotalesPago() {
+      const d = desglosePagoActual;
+      if (!d) return;
+
+      const subtotal = d.manoObra + d.refacciones;
+      const inputDescuento = document.getElementById('pagoDescuento');
+      let descuento = parseFloat(inputDescuento.value) || 0;
+      if (descuento < 0) descuento = 0;
+      if (descuento > subtotal) {
+        descuento = subtotal;
+        inputDescuento.value = subtotal.toFixed(2);
+      }
+
+      d.descuento = descuento;
+      d.total = Math.round((subtotal - descuento) * 100) / 100;
+      totalCalculadoPagoActual = d.total;
+
+      document.getElementById('desglosePagoCuenta').innerHTML = `
         <div class="flex justify-between items-center border-b pb-2">
           <div>
-            <span class="font-bold text-zinc-900 block">${ord.auto} (${ord.placas})</span>
-            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">✓ Estatus: ${ord.estado}</span>
+            <span class="font-bold text-zinc-900 block">${esc(d.ord.auto)} (${esc(d.ord.placas)})</span>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">✓ Estatus: ${esc(d.ord.estado)}</span>
           </div>
-          <span class="text-blue-700 font-mono font-bold">${ord.folio}</span>
+          <span class="text-blue-700 font-mono font-bold">${esc(d.ord.folio)}</span>
         </div>
         <div class="space-y-1.5 text-zinc-700 pt-1">
           <div class="flex justify-between">
             <span>Cliente Titular:</span>
-            <strong class="text-zinc-900">${ord.cliente}</strong>
+            <strong class="text-zinc-900">${esc(d.ord.cliente)}</strong>
           </div>
           <div class="flex justify-between">
-            <span>Servicio Base / Mantenimiento:</span>
-            <span class="font-mono font-semibold">$${costoBase.toFixed(2)} MXN</span>
+            <span>Servicio Base / Mantenimiento (mano de obra):</span>
+            <span class="font-mono font-semibold">$${d.costoBase.toFixed(2)} MXN</span>
           </div>
-          ${extrasAprobados.map(e => `
+          ${d.extrasAprobados.map(e => `
             <div class="flex justify-between text-purple-700 text-[11px] pl-2 border-l-2 border-purple-300">
-              <span>+ Extra Autorizado: ${e.concepto}</span>
-              <span class="font-mono font-bold">$${parseFloat(e.costo).toFixed(2)} MXN</span>
+              <span>+ Extra Autorizado: ${esc(e.concepto)}
+                <span class="text-zinc-400">(refacción $${(parseFloat(e.costo_refaccion) || 0).toFixed(2)} · mano de obra $${(parseFloat(e.costo_mano_obra) || 0).toFixed(2)})</span>
+              </span>
+              <span class="font-mono font-bold">$${(parseFloat(e.costo) || 0).toFixed(2)} MXN</span>
             </div>
           `).join('')}
+          <div class="border-t border-zinc-200 pt-2 space-y-1">
+            <div class="flex justify-between">
+              <span>Mano de obra:</span>
+              <span class="font-mono font-semibold">$${d.manoObra.toFixed(2)} MXN</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Refacciones:</span>
+              <span class="font-mono font-semibold">$${d.refacciones.toFixed(2)} MXN</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Subtotal:</span>
+              <span class="font-mono font-semibold">$${subtotal.toFixed(2)} MXN</span>
+            </div>
+            <div class="flex justify-between text-red-600">
+              <span>Descuento:</span>
+              <span class="font-mono font-semibold">- $${descuento.toFixed(2)} MXN</span>
+            </div>
+          </div>
           <div class="flex justify-between border-t border-zinc-200 pt-2 text-sm font-black text-zinc-900">
-            <span>TOTAL A LIQUIDAR:</span>
-            <span class="text-emerald-700 font-mono">$${totalCalculadoPagoActual.toFixed(2)} MXN</span>
+            <span>TOTAL A PAGAR:</span>
+            <span class="text-emerald-700 font-mono">$${d.total.toFixed(2)} MXN</span>
           </div>
         </div>
       `;
 
-      document.getElementById('pagoTotalMostrar').innerText = `$${totalCalculadoPagoActual.toFixed(2)}`;
-      document.getElementById('pagoMontoRecibido').value = '';
-      document.getElementById('pagoCambioMostrar').innerText = "$0.00";
+      document.getElementById('pagoTotalMostrar').innerText = `$${d.total.toFixed(2)}`;
     }
 
     function calcularCambioEfectivo() {
@@ -1415,8 +1539,9 @@
       const folio = document.getElementById('pago_selectFolio').value;
       const recibido = parseFloat(document.getElementById('pagoMontoRecibido').value);
       const ord = ordenesActivas.find(o => o.folio === folio);
+      const d = desglosePagoActual;
 
-      if (!ord) {
+      if (!ord || !d || d.folio !== folio) {
         alert("Seleccione una orden válida.");
         return;
       }
@@ -1426,45 +1551,180 @@
         return;
       }
 
-      if (isNaN(recibido) || recibido < totalCalculadoPagoActual) {
+      if (isNaN(recibido) || recibido < d.total) {
         alert("El dinero en efectivo recibido es insuficiente para cubrir el total de la orden.");
         return;
       }
 
-      const cambio = recibido - totalCalculadoPagoActual;
+      const cambio = Math.round((recibido - d.total) * 100) / 100;
 
       try {
-        const respuesta = await fetch(`${API_URL}/api/pagos`, {
+        const resultado = await api('/api/pagos', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          body: {
             folio_orden: ord.folio,
-            monto_total: totalCalculadoPagoActual,
+            monto_total: d.total,
+            descuento: d.descuento,
             efectivo_recibido: recibido,
             cambio: cambio,
-            atendido_por: usuarioActivo.nombre
-          })
+            atendido_por: usuarioActivo.nombre,
+            rol: usuarioActivo.rol
+          }
         });
 
-        const resultado = await respuesta.json();
-        if (resultado.success) {
-          // Llenar ticket de pago
-          document.getElementById('ticketPagoFolio').innerText = ord.folio;
-          document.getElementById('ticketPagoCliente').innerText = ord.cliente;
-          document.getElementById('ticketPagoMontoTotal').innerText = `$${totalCalculadoPagoActual.toFixed(2)} MXN`;
-          document.getElementById('ticketPagoRecibido').innerText = `$${recibido.toFixed(2)} MXN`;
-          document.getElementById('ticketPagoCambio').innerText = `$${cambio.toFixed(2)} MXN`;
+        // Los importes oficiales los calcula el servidor
+        const c = resultado.comprobante;
+        comprobanteActual = {
+          folio: ord.folio,
+          fecha: c.fecha_pago,
+          cliente: ord.cliente,
+          auto: ord.auto,
+          placas: ord.placas,
+          costoBase: Number(c.costo_base),
+          extras: d.extrasAprobados.map(e => ({
+            concepto: e.concepto,
+            refaccion: parseFloat(e.costo_refaccion) || 0,
+            manoObra: parseFloat(e.costo_mano_obra) || 0
+          })),
+          manoObra: Number(c.subtotal_mano_obra),
+          refacciones: Number(c.subtotal_refacciones),
+          descuento: Number(c.monto_descuento),
+          total: Number(c.total_liquidado),
+          efectivo: recibido,
+          cambio: cambio,
+          atendidoPor: usuarioActivo.nombre
+        };
 
-          document.getElementById('modalTicketPago').classList.remove('hidden');
-          await cargarDatosDesdeServidor();
-          inicializarModuloPago();
-        } else {
-          alert("Error al registrar el pago en la BD: " + resultado.error);
-        }
+        document.getElementById('ticketPagoFolio').innerText = ord.folio;
+        document.getElementById('ticketPagoCliente').innerText = ord.cliente;
+        document.getElementById('ticketPagoManoObra').innerText = `${mxn(comprobanteActual.manoObra)} MXN`;
+        document.getElementById('ticketPagoRefacciones').innerText = `${mxn(comprobanteActual.refacciones)} MXN`;
+        document.getElementById('ticketPagoDescuento').innerText = `- ${mxn(comprobanteActual.descuento)} MXN`;
+        document.getElementById('ticketPagoMontoTotal').innerText = `${mxn(comprobanteActual.total)} MXN`;
+        document.getElementById('ticketPagoRecibido').innerText = `${mxn(recibido)} MXN`;
+        document.getElementById('ticketPagoCambio').innerText = `${mxn(cambio)} MXN`;
+
+        document.getElementById('modalTicketPago').classList.remove('hidden');
+        await cargarDatosDesdeServidor();
+        inicializarModuloPago();
       } catch (error) {
         console.error("Error al procesar pago:", error);
-        alert("Error de conexión con el servidor.");
+        alert("Error al registrar el pago en la BD: " + error.message);
+        await cargarDatosDesdeServidor();
+        inicializarModuloPago();
       }
+    }
+
+    function mxn(valor) {
+      return (Number(valor) || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+    }
+
+    // Reimprime el comprobante de un pago ya registrado (desde el historial)
+    function reimprimirComprobante(idPago) {
+      const p = historialPagos.find(x => Number(x.id_pago) === Number(idPago));
+      if (!p) {
+        alert("No se encontró el pago seleccionado.");
+        return;
+      }
+
+      const ord = ordenesActivas.find(o => o.folio === p.folio_orden);
+      const extras = trabajosAdicionales
+        .filter(t => t.folio_orden === p.folio_orden && t.estado_autorizacion === 'Aprobado')
+        .map(e => ({
+          concepto: e.concepto,
+          refaccion: parseFloat(e.costo_refaccion) || 0,
+          manoObra: parseFloat(e.costo_mano_obra) || 0
+        }));
+      const manoObra = Number(p.subtotal_mano_obra) || 0;
+      const manoObraExtras = extras.reduce((acc, e) => acc + e.manoObra, 0);
+
+      comprobanteActual = {
+        folio: p.folio_orden,
+        fecha: p.fecha_pago,
+        cliente: p.cliente,
+        auto: p.auto,
+        placas: p.placas,
+        costoBase: ord ? Number(ord.costo_base) : manoObra - manoObraExtras,
+        extras,
+        manoObra,
+        refacciones: Number(p.subtotal_refacciones) || 0,
+        descuento: Number(p.monto_descuento) || 0,
+        total: Number(p.monto_total) || 0,
+        efectivo: null,
+        cambio: null,
+        atendidoPor: p.atendido_por
+      };
+      imprimirComprobantePago();
+    }
+
+    // Genera el comprobante de pago en una ventana lista para imprimir
+    function imprimirComprobantePago() {
+      const c = comprobanteActual;
+      if (!c) return;
+
+      const filas = [
+        `<tr><td>Servicio base / mantenimiento</td><td class="r">${mxn(c.costoBase)}</td></tr>`,
+        ...c.extras.map(e => `
+          <tr>
+            <td>Extra autorizado: ${esc(e.concepto)}<br><small>Refacción ${mxn(e.refaccion)} · Mano de obra ${mxn(e.manoObra)}</small></td>
+            <td class="r">${mxn(e.refaccion + e.manoObra)}</td>
+          </tr>`)
+      ].join('');
+
+      const w = window.open('', '_blank', 'width=520,height=780');
+      if (!w) {
+        alert("El navegador bloqueó la ventana del comprobante. Permita las ventanas emergentes e intente de nuevo.");
+        return;
+      }
+
+      w.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comprobante ${esc(c.folio)}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #18181b; margin: 24px; font-size: 13px; }
+  h1 { font-size: 18px; margin: 0; text-align: center; }
+  .sub { text-align: center; color: #52525b; margin: 2px 0 14px; font-size: 12px; }
+  .datos { border-top: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; padding: 8px 0; margin-bottom: 12px; }
+  .datos div { display: flex; justify-content: space-between; padding: 2px 0; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 4px 0; vertical-align: top; }
+  td.r { text-align: right; white-space: nowrap; }
+  small { color: #71717a; }
+  .totales { border-top: 1px solid #d4d4d8; margin-top: 10px; padding-top: 8px; }
+  .totales div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .total { font-size: 16px; font-weight: bold; border-top: 2px solid #18181b; margin-top: 6px; padding-top: 6px; }
+  .pie { text-align: center; color: #71717a; font-size: 11px; margin-top: 22px; }
+  @media print { body { margin: 8mm; } }
+</style>
+</head>
+<body>
+  <h1>MotorPlus</h1>
+  <div class="sub">Comprobante de pago de servicio</div>
+  <div class="datos">
+    <div><span>Folio</span><strong>${esc(c.folio)}</strong></div>
+    <div><span>Fecha</span><span>${esc(c.fecha || '')}</span></div>
+    <div><span>Cliente</span><span>${esc(c.cliente)}</span></div>
+    <div><span>Vehículo</span><span>${esc(c.auto)} (${esc(c.placas)})</span></div>
+    ${c.atendidoPor ? `<div><span>Atendió</span><span>${esc(c.atendidoPor)}</span></div>` : ''}
+  </div>
+  <table>${filas}</table>
+  <div class="totales">
+    <div><span>Mano de obra</span><span>${mxn(c.manoObra)}</span></div>
+    <div><span>Refacciones</span><span>${mxn(c.refacciones)}</span></div>
+    <div><span>Subtotal</span><span>${mxn(c.manoObra + c.refacciones)}</span></div>
+    <div><span>Descuento</span><span>- ${mxn(c.descuento)}</span></div>
+    <div class="total"><span>TOTAL A PAGAR</span><span>${mxn(c.total)}</span></div>
+    <div><span>Método de pago</span><span>Efectivo</span></div>
+    ${c.efectivo != null ? `<div><span>Efectivo recibido</span><span>${mxn(c.efectivo)}</span></div><div><span>Cambio</span><span>${mxn(c.cambio)}</span></div>` : ''}
+  </div>
+  <div class="pie">Gracias por su preferencia</div>
+</body>
+</html>`);
+      w.document.close();
+      w.focus();
+      setTimeout(() => w.print(), 300);
     }
 
     function cerrarTicketPago() {
@@ -1476,23 +1736,26 @@
     function renderizarHistorialPagos() {
       const tbody = document.getElementById('tablaHistorialPagos');
       if (historialPagos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-zinc-400 italic">No hay registros de pagos efectuados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-zinc-400 italic">No hay registros de pagos efectuados.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = historialPagos.map(p => `
         <tr class="hover:bg-zinc-50 transition">
-          <td class="p-3 font-mono font-bold text-blue-700">${p.folio_orden}</td>
-          <td class="p-3 font-bold text-zinc-800">${p.cliente || 'N/A'}</td>
-          <td class="p-3 text-zinc-600">${p.auto || p.placas || 'N/A'}</td>
-          <td class="p-3 font-mono font-bold text-emerald-700">$${parseFloat(p.monto_total).toFixed(2)}</td>
-          <td class="p-3 font-mono text-zinc-600">$${parseFloat(p.efectivo_recibido).toFixed(2)}</td>
-          <td class="p-3 font-mono text-zinc-600">$${parseFloat(p.cambio).toFixed(2)}</td>
-          <td class="p-3 text-zinc-500">${p.atendido_por}</td>
+          <td class="p-3 font-mono font-bold text-blue-700">${esc(p.folio_orden)}</td>
+          <td class="p-3 font-bold text-zinc-800">${esc(p.cliente || 'N/A')}</td>
+          <td class="p-3 text-zinc-600">${esc(p.auto || p.placas || 'N/A')}</td>
+          <td class="p-3 font-mono font-bold text-emerald-700">$${(parseFloat(p.monto_total) || 0).toFixed(2)}</td>
+          <td class="p-3 font-mono text-zinc-600">${dinero(p.efectivo_recibido)}</td>
+          <td class="p-3 font-mono text-zinc-600">${dinero(p.cambio)}</td>
+          <td class="p-3 text-zinc-500">${esc(p.atendido_por || '—')}</td>
           <td class="p-3 text-right">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
               ✓ Liquidado (Efectivo)
             </span>
+          </td>
+          <td class="p-3 text-right">
+            <button onclick="reimprimirComprobante(${Number(p.id_pago)})" class="text-blue-600 hover:underline font-bold text-[11px]">🖨️ Comprobante</button>
           </td>
         </tr>
       `).join('');
@@ -1608,9 +1871,13 @@
       const gasolina = document.getElementById('inv_gasolina').value;
       const falla = document.getElementById('ord_falla').value.trim();
       const mecanico = document.getElementById('ord_mecanico').value;
+      const accesorios = [...document.querySelectorAll('#listaPertenencias label')]
+        .filter(l => l.querySelector('input').checked)
+        .map(l => l.textContent.trim())
+        .join(', ');
 
-      if (!nombre || !tel1 || !placas || !gasolina || !falla) {
-        document.getElementById('alertaErrorTexto').innerText = 'Debe capturar obligatoriamente el cliente, teléfono principal, placas, nivel de gasolina y falla reportada.';
+      if (!nombre || !tel1 || !placas || !marca || !modelo || !gasolina || !falla) {
+        document.getElementById('alertaErrorTexto').innerText = 'Debe capturar obligatoriamente el cliente, teléfono principal, placas, marca, modelo, nivel de gasolina y falla reportada.';
         document.getElementById('alertaError').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -1625,7 +1892,7 @@
           body: JSON.stringify({
             cliente: { nombre, apellidos, telefono1: tel1, telefono2: tel2 },
             vehiculo: { placas, marca, modelo, anio, color, vin },
-            inventario: { combustible: gasolina, danos: listaDanios },
+            inventario: { combustible: gasolina, danos: listaDanios, accesorios },
             orden: { falla, mecanico, responsable: usuarioActivo.nombre }
           })
         });
@@ -1826,6 +2093,7 @@
       const quien = document.getElementById('llamada_quien').value.trim();
       const motivo = document.getElementById('llamada_motivo').value.trim();
       const devuelta = document.getElementById('llamada_devuelta').value;
+      const folio = document.getElementById('llamada_folio').value;
 
       if (!quien || !motivo) {
         document.getElementById('alertaErrorTexto').innerText = 'Debe indicar quién llamó y el motivo de la llamada.';
@@ -1833,104 +2101,135 @@
         return;
       }
 
+      if (!folio) {
+        document.getElementById('alertaErrorTexto').innerText = 'Seleccione la orden de servicio relacionada con la llamada.';
+        document.getElementById('alertaError').classList.remove('hidden');
+        return;
+      }
+
       document.getElementById('alertaError').classList.add('hidden');
 
       try {
-        const respuesta = await fetch(`${API_URL}/api/llamadas`, {
+        await api('/api/llamadas', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          body: {
             cliente_contacto: quien,
-            telefono: "7770000000",
             motivo_llamada: motivo,
-            folio_orden: null
-          })
+            folio_orden: folio,
+            estado_llamada: devuelta === 'Sí' ? 'Sí (Atendida)' : 'Pendiente',
+            registrado_por: usuarioActivo.nombre,
+            rol: usuarioActivo.rol
+          }
         });
 
-        const resultado = await respuesta.json();
-        if (resultado.success) {
-          document.getElementById('llamada_quien').value = '';
-          document.getElementById('llamada_motivo').value = '';
-          document.getElementById('llamada_devuelta').value = 'No';
+        document.getElementById('llamada_quien').value = '';
+        document.getElementById('llamada_motivo').value = '';
+        document.getElementById('llamada_devuelta').value = 'No';
 
-          await cargarDatosDesdeServidor();
-          renderizarBitacoraLlamadas();
-          alert("Llamada guardada permanentemente en la base de datos.");
-        }
+        await cargarDatosDesdeServidor();
+        renderizarBitacoraLlamadas();
+        alert("Llamada guardada permanentemente en la base de datos.");
       } catch (error) {
         console.error("Error al guardar llamada:", error);
-        alert("Error de conexión con el servidor.");
+        alert("No se pudo guardar la llamada: " + error.message);
       }
     }
 
     function renderizarBitacoraLlamadas() {
+      // Lista de órdenes para relacionar la llamada
+      const selectFolio = document.getElementById('llamada_folio');
+      if (selectFolio) {
+        const previo = selectFolio.value;
+        selectFolio.innerHTML = ordenesActivas.length
+          ? ordenesActivas.map(o => `<option value="${esc(o.folio)}">${esc(o.folio)} - ${esc(o.auto)} (${esc(o.placas)})</option>`).join('')
+          : '<option value="">-- No hay órdenes registradas --</option>';
+        if (previo) selectFolio.value = previo;
+      }
+
       const tbody = document.getElementById('tablaBitacoraLlamadas');
       if (bitacoraLlamadas.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-zinc-400 italic">No hay llamadas registradas en la bitácora</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = bitacoraLlamadas.map(l => `
+      tbody.innerHTML = bitacoraLlamadas.map(l => {
+        const atendida = l.estado_llamada === 'Sí (Atendida)' || l.devuelta === 'Sí';
+        return `
         <tr class="hover:bg-zinc-50 transition">
-          <td class="p-3 font-mono text-zinc-500">${l.fecha_hora || l.fecha}</td>
-          <td class="p-3 font-bold text-zinc-800">${l.cliente_contacto || l.quien}</td>
-          <td class="p-3 text-zinc-600">${l.motivo_llamada || l.motivo}</td>
+          <td class="p-3 font-mono text-zinc-500">${esc(l.fecha_hora || l.fecha)}</td>
+          <td class="p-3 font-bold text-zinc-800">${esc(l.cliente_contacto || l.quien)}</td>
+          <td class="p-3 text-zinc-600">
+            ${esc(l.motivo_llamada || l.motivo)}
+            ${l.folio_orden ? `<span class="ml-1 font-mono text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">${esc(l.folio_orden)}</span>` : ''}
+          </td>
           <td class="p-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${(l.estado_llamada === 'Sí (Atendida)' || l.devuelta === 'Sí') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-              ${(l.estado_llamada === 'Sí (Atendida)' || l.devuelta === 'Sí') ? '✓ Devuelta / Atendida' : '⏳ Pendiente'}
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${atendida ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+              ${atendida ? '✓ Devuelta / Atendida' : '⏳ Pendiente'}
             </span>
           </td>
           <td class="p-3 text-right">
-            <button onclick="alternarDevolucionLlamada(${l.id_llamada || l.id}, '${l.estado_llamada || l.devuelta}')" class="text-blue-600 hover:underline font-bold text-[11px]">
+            <button onclick="alternarDevolucionLlamada(${Number(l.id_llamada || l.id)}, ${atendida})" class="text-blue-600 hover:underline font-bold text-[11px]">
               Cambiar Estatus
             </button>
           </td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
     }
 
-    async function alternarDevolucionLlamada(id, estadoActual) {
-      const nuevoEstado = (estadoActual === 'Sí' || estadoActual === 'Sí (Atendida)') ? 'Pendiente' : 'Sí (Atendida)';
+    async function alternarDevolucionLlamada(id, estabaAtendida) {
+      const nuevoEstado = estabaAtendida ? 'Pendiente' : 'Sí (Atendida)';
       try {
-        const res = await fetch(`${API_URL}/api/llamadas/${id}/estatus`, {
+        await api(`/api/llamadas/${id}/estatus`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estado_llamada: nuevoEstado })
+          body: { estado_llamada: nuevoEstado }
         });
-        const resultado = await res.json();
-        if (resultado.success) {
-          await cargarDatosDesdeServidor();
-          renderizarBitacoraLlamadas();
-        }
+        await cargarDatosDesdeServidor();
+        renderizarBitacoraLlamadas();
       } catch (error) {
         console.error("Error al actualizar llamada:", error);
+        alert("No se pudo actualizar la llamada: " + error.message);
       }
     }
 
     // Renderizado del Tablero de Bahías (CU-04)
     function renderizarTarjetasBahia() {
       const contenedor = document.getElementById('contenedorTarjetasBahia');
-      contenedor.innerHTML = ordenesActivas.map(ord => `
+      contenedor.innerHTML = ordenesActivas.map(ord => {
+        const bloqueada = ord.estado === 'Terminado';
+        const folio = esc(ord.folio);
+        const costoBase = Number.isFinite(Number(ord.costo_base)) ? Number(ord.costo_base) : 1500;
+
+        const bloqueCostoBase = bloqueada
+          ? `<div class="flex justify-between items-center bg-zinc-100 border border-zinc-200 rounded-lg px-3 py-2 font-mono font-bold text-zinc-700">
+               <span>$${costoBase.toFixed(2)} MXN</span>
+               <span class="text-[10px] font-sans text-zinc-500">🔒 Bloqueado (orden terminada)</span>
+             </div>`
+          : `<div class="flex gap-2">
+               <input type="number" id="costoBase_${folio}" min="0" step="0.01" value="${costoBase.toFixed(2)}" class="wf-input flex-1 min-w-0 p-2 rounded-lg border border-zinc-300 font-mono font-bold">
+               <button onclick="guardarCostoBase('${folio}')" class="bg-zinc-900 hover:bg-black text-white font-bold px-3 rounded-lg transition">Guardar</button>
+             </div>`;
+
+        return `
         <div class="wf-card bg-white p-5 rounded-2xl border border-zinc-200 shadow-md flex flex-col justify-between space-y-4">
           <div>
             <div class="flex items-center justify-between border-b pb-2.5 border-zinc-100">
-              <span class="font-mono font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${ord.folio}</span>
-              <span class="text-[10px] text-zinc-400 font-mono">${ord.hora}</span>
+              <span class="font-mono font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${folio}</span>
+              <span class="text-[10px] text-zinc-400 font-mono">${esc(ord.hora)}</span>
             </div>
             <div class="mt-3">
-              <h4 class="text-sm font-black text-zinc-900">${ord.auto}</h4>
-              <p class="text-xs font-mono font-bold text-orange-600">${ord.placas}</p>
-              <p class="text-xs text-zinc-500 mt-1">Cliente: <strong class="text-zinc-800">${ord.cliente}</strong></p>
+              <h4 class="text-sm font-black text-zinc-900">${esc(ord.auto)}</h4>
+              <p class="text-xs font-mono font-bold text-orange-600">${esc(ord.placas)}</p>
+              <p class="text-xs text-zinc-500 mt-1">Cliente: <strong class="text-zinc-800">${esc(ord.cliente)}</strong></p>
             </div>
             <div class="mt-3 p-2.5 bg-zinc-50 rounded-xl border border-zinc-200 text-xs">
               <span class="block text-[10px] font-bold text-zinc-400 uppercase">Falla Asignada:</span>
-              <p class="text-zinc-700 line-clamp-2 mt-0.5">${ord.falla}</p>
+              <p class="text-zinc-700 line-clamp-2 mt-0.5">${esc(ord.falla)}</p>
             </div>
           </div>
           <div class="space-y-3 pt-2 border-t border-zinc-100 text-xs">
             <div>
               <label class="block text-[11px] font-bold text-zinc-700 mb-1">Actualizar Fase Operativa (Mecánico):</label>
-              <select onchange="cambiarEstadoOrden('${ord.folio}', this.value)" class="wf-input w-full p-2 rounded-lg border border-zinc-300 font-bold ${obtenerColorEstado(ord.estado)}">
+              <select ${bloqueada ? 'disabled' : ''} onchange="cambiarEstadoOrden('${folio}', this.value)" class="wf-input w-full p-2 rounded-lg border border-zinc-300 font-bold ${obtenerColorEstado(ord.estado)} ${bloqueada ? 'opacity-70 cursor-not-allowed' : ''}">
                 <option value="Ingresado" ${ord.estado === 'Ingresado' ? 'selected' : ''}>1. Ingresado (Recepción)</option>
                 <option value="En diagnóstico" ${ord.estado === 'En diagnóstico' ? 'selected' : ''}>2. En diagnóstico</option>
                 <option value="Esperando refacciones" ${ord.estado === 'Esperando refacciones' ? 'selected' : ''}>3. Esperando refacciones</option>
@@ -1938,36 +2237,65 @@
                 <option value="Terminado" ${ord.estado === 'Terminado' ? 'selected' : ''}>5. Terminado (Listo para Entrega)</option>
               </select>
             </div>
+            <div>
+              <label class="block text-[11px] font-bold text-zinc-700 mb-1">Costo base del servicio ($ MXN):</label>
+              ${bloqueCostoBase}
+            </div>
             <div class="flex justify-between items-center text-[10px] text-zinc-400 font-mono">
-              <span>Mecánico: ${ord.mecanico}</span>
+              <span>Mecánico: ${esc(ord.mecanico)}</span>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
+    }
+
+    async function guardarCostoBase(folio) {
+      const input = document.getElementById(`costoBase_${folio}`);
+      const valor = input ? parseFloat(input.value) : NaN;
+
+      if (isNaN(valor) || valor < 0) {
+        alert("Introduzca un costo base válido (0 o mayor).");
+        return;
+      }
+
+      try {
+        await api(`/api/ordenes/${encodeURIComponent(folio)}/costo-base`, {
+          method: 'PATCH',
+          body: { costo_base: valor, rol: usuarioActivo.rol }
+        });
+        await cargarDatosDesdeServidor();
+        renderizarTarjetasBahia();
+        alert(`Costo base de ${folio} actualizado a $${valor.toFixed(2)} MXN.`);
+      } catch (error) {
+        console.error("Error al guardar costo base:", error);
+        alert("No se pudo guardar el costo base: " + error.message);
+        await cargarDatosDesdeServidor();
+        renderizarTarjetasBahia();
+      }
     }
 
     async function cambiarEstadoOrden(folio, nuevoEstado) {
-      try {
-        const respuesta = await fetch(`${API_URL}/api/ordenes/${folio}/estatus`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estatus: nuevoEstado })
-        });
+      if (nuevoEstado === 'Terminado' &&
+          !confirm(`Al marcar la orden ${folio} como TERMINADA ya no podrá modificarse el costo base ni cambiarse su estatus. ¿Desea continuar?`)) {
+        renderizarTarjetasBahia(); // regresa el selector al estatus anterior
+        return;
+      }
 
-        const resultado = await respuesta.json();
-        if (resultado.success) {
-          if (nuevoEstado === 'Terminado') {
-            alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA en la base de datos.`);
-          }
-          await cargarDatosDesdeServidor();
-          renderizarTarjetasBahia();
-        } else {
-          alert("Error al actualizar estatus: " + resultado.error);
+      try {
+        await api(`/api/ordenes/${encodeURIComponent(folio)}/estatus`, {
+          method: 'PATCH',
+          body: { estatus: nuevoEstado }
+        });
+        if (nuevoEstado === 'Terminado') {
+          alert(`🔔 La unidad con folio ${folio} ha sido marcada como TERMINADA en la base de datos.`);
         }
       } catch (error) {
         console.error("Error al actualizar estatus:", error);
-        alert("Error de conexión con el servidor.");
+        alert("Error al actualizar estatus: " + error.message);
       }
+
+      await cargarDatosDesdeServidor();
+      renderizarTarjetasBahia();
     }
 
     // Lógica para CU-05: Trabajos Adicionales
@@ -1977,9 +2305,15 @@
         return;
       }
 
+      const activas = ordenesActivas.filter(o => o.estado !== 'Terminado');
+      if (activas.length === 0) {
+        alert("No hay órdenes activas a las cuales agregar un trabajo adicional.");
+        return;
+      }
+
       const selectFolio = document.getElementById('extra_folio');
-      selectFolio.innerHTML = ordenesActivas.map(o => `
-        <option value="${o.folio}">${o.folio} - ${o.auto} (${o.cliente})</option>
+      selectFolio.innerHTML = activas.map(o => `
+        <option value="${esc(o.folio)}">${esc(o.folio)} - ${esc(o.auto)} (${esc(o.cliente)})</option>
       `).join('');
       document.getElementById('formularioTrabajoExtraContainer').classList.remove('hidden');
     }
@@ -1992,39 +2326,43 @@
 
       const folio = document.getElementById('extra_folio').value;
       const concepto = document.getElementById('extra_concepto').value.trim();
-      const monto = parseFloat(document.getElementById('extra_monto').value);
+      const refaccion = parseFloat(document.getElementById('extra_monto').value) || 0;
+      const manoObra = parseFloat(document.getElementById('extra_mano_obra').value) || 0;
       const justificacion = document.getElementById('extra_justificacion').value.trim();
 
-      if (!concepto || isNaN(monto) || monto <= 0) {
-        alert("Por favor introduzca el concepto y un costo adicional válido.");
+      if (!folio) {
+        alert("Seleccione el vehículo / folio al que corresponde el trabajo adicional.");
         return;
       }
 
+      if (!concepto || refaccion < 0 || manoObra < 0 || refaccion + manoObra <= 0) {
+        alert("Por favor introduzca el concepto y un costo adicional válido (refacción y/o mano de obra).");
+        return;
+      }
+
+      const boton = document.getElementById('btnEnviarSolicitudExtra');
+      boton.disabled = true;
+
       try {
-        const respuesta = await fetch(`${API_URL}/api/trabajos-adicionales`, {
+        await api('/api/trabajos-adicionales', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            folio_orden: folio,
-            concepto: concepto,
-            justificacion: justificacion,
-            costo: monto
-          })
+          body: { folio_orden: folio, concepto, justificacion, costo_refaccion: refaccion, costo_mano_obra: manoObra }
         });
 
-        const resultado = await respuesta.json();
-        if (resultado.success) {
-          document.getElementById('extra_concepto').value = '';
-          document.getElementById('extra_monto').value = '';
-          document.getElementById('extra_justificacion').value = '';
-          document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden');
+        document.getElementById('extra_concepto').value = '';
+        document.getElementById('extra_monto').value = '';
+        document.getElementById('extra_mano_obra').value = '';
+        document.getElementById('extra_justificacion').value = '';
+        document.getElementById('formularioTrabajoExtraContainer').classList.add('hidden');
 
-          await cargarDatosDesdeServidor();
-          renderizarTrabajosAdicionales();
-          alert("Trabajo adicional registrado en la base de datos.");
-        }
+        await cargarDatosDesdeServidor();
+        renderizarTrabajosAdicionales();
+        alert("Trabajo adicional registrado en la base de datos.");
       } catch (error) {
         console.error("Error al guardar trabajo extra:", error);
+        alert("No se pudo enviar la solicitud: " + error.message);
+      } finally {
+        boton.disabled = false;
       }
     }
 
@@ -2033,7 +2371,7 @@
 
       let listaAMostrar = trabajosAdicionales;
       if (usuarioActivo.rol === 'Cliente' && usuarioActivo.placaAsociada) {
-        listaAMostrar = trabajosAdicionales.filter(t => t.auto && t.auto.toUpperCase().includes(usuarioActivo.placaAsociada.toUpperCase()));
+        listaAMostrar = trabajosAdicionales.filter(t => (t.placas || '').toUpperCase() === usuarioActivo.placaAsociada.toUpperCase());
       }
 
       if (listaAMostrar.length === 0) {
@@ -2042,7 +2380,10 @@
       }
 
       contenedor.innerHTML = listaAMostrar.map(t => {
-        let estadoAuth = t.estado_autorizacion || t.estadoAutorizacion;
+        const estadoAuth = t.estado_autorizacion || t.estadoAutorizacion || 'Pendiente';
+        const ordenCerrada = (ordenesActivas.find(o => o.folio === (t.folio_orden || t.folio)) || {}).estado === 'Terminado';
+        const fechaTxt = t.fecha_hora_autorizacion || t.fecha_registro || t.fecha;
+        const fechaFmt = fechaTxt && !isNaN(new Date(fechaTxt)) ? new Date(fechaTxt).toLocaleString('es-MX') : (fechaTxt || '');
         let badgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
         if (estadoAuth === 'Aprobado') badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
         if (estadoAuth === 'Rechazado') badgeColor = 'bg-red-100 text-red-800 border-red-200';
@@ -2051,9 +2392,9 @@
           <div class="wf-card bg-white p-4 rounded-xl border border-zinc-200 shadow-sm space-y-3">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 gap-2 text-xs">
               <div class="flex items-center space-x-2">
-                <span class="font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.folio_orden || t.folio}</span>
-                <span class="font-bold text-zinc-800">${t.auto || 'Vehículo'}</span>
-                <span class="text-zinc-500">| Cliente: <strong>${t.cliente || ''}</strong></span>
+                <span class="font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${esc(t.folio_orden || t.folio)}</span>
+                <span class="font-bold text-zinc-800">${esc(t.auto || 'Vehículo')}</span>
+                <span class="text-zinc-500">| Cliente: <strong>${esc(t.cliente)}</strong></span>
               </div>
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">
                 ${estadoAuth}
@@ -2063,15 +2404,15 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
               <div class="md:col-span-2">
                 <span class="text-zinc-400 block font-bold text-[10px] uppercase">Concepto / Refacción Adicional</span>
-                <p class="font-bold text-zinc-900">${t.concepto}</p>
-                <p class="text-zinc-500 text-[11px] mt-1">Justificación: <em>"${t.justificacion || ''}"</em></p>
+                <p class="font-bold text-zinc-900">${esc(t.concepto)}</p>
+                <p class="text-zinc-500 text-[11px] mt-1">Justificación: <em>"${esc(t.justificacion)}"</em></p>
               </div>
               <div>
                 <span class="text-zinc-400 block font-bold text-[10px] uppercase">Costo Estimado Extra</span>
                 <p class="text-base font-black text-purple-700">$${parseFloat(t.costo || t.monto).toFixed(2)} MXN</p>
               </div>
               <div class="flex flex-col justify-center items-end space-y-1">
-                ${estadoAuth === 'Pendiente' ? (usuarioActivo.rol === 'Cliente' || usuarioActivo.rol === 'Recepcionista' || usuarioActivo.rol === 'Administrador') ? `
+                ${estadoAuth === 'Pendiente' ? ordenCerrada ? `<span class="text-[11px] font-mono text-zinc-400">Orden terminada: ya no se puede responder</span>` : (usuarioActivo.rol === 'Cliente' || usuarioActivo.rol === 'Recepcionista' || usuarioActivo.rol === 'Administrador') ? `
                   <div class="flex gap-2">
                     <button onclick="responderTrabajoExtra(${t.id_adicional || t.id}, 'Aprobado')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow">
                       ✓ Autorizar
@@ -2088,7 +2429,7 @@
               </div>
             </div>
             <div class="text-[10px] text-zinc-400 font-mono border-t pt-1.5 flex justify-between">
-              <span>Fecha: ${t.fecha_registro || t.fecha}</span>
+              <span>${fechaFmt ? 'Respondido: ' + esc(fechaFmt) : 'Sin respuesta del cliente'}</span>
             </div>
           </div>
         `;
@@ -2097,20 +2438,20 @@
 
     async function responderTrabajoExtra(id, estado) {
       try {
-        const respuesta = await fetch(`${API_URL}/api/trabajos-adicionales/${id}/autorizar`, {
+        await api(`/api/trabajos-adicionales/${id}/autorizar`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estado_autorizacion: estado })
+          body: {
+            estado_autorizacion: estado,
+            medio_confirmacion: usuarioActivo.rol === 'Cliente' ? 'Portal del cliente' : 'Recepción'
+          }
         });
 
-        const resultado = await respuesta.json();
-        if (resultado.success) {
-          await cargarDatosDesdeServidor();
-          renderizarTrabajosAdicionales();
-          alert(`Autorización actualizada a: ${estado}`);
-        }
+        await cargarDatosDesdeServidor();
+        renderizarTrabajosAdicionales();
+        alert(`Autorización actualizada a: ${estado}`);
       } catch (error) {
         console.error("Error al autorizar trabajo extra:", error);
+        alert("No se pudo actualizar la autorización: " + error.message);
       }
     }
 
