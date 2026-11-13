@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -13,9 +14,9 @@ const pool = new Pool({
   user: process.env.PGUSER || 'postgres',
   host: process.env.PGHOST || 'localhost',
   database: process.env.PGDATABASE || 'Taller-MotorPlus-BD',
-  password: process.env.PGPASSWORD || 'Vestrani1',
+  password: process.env.PGPASSWORD,
   port: Number(process.env.PGPORT) || 5432,
-});
+}); 
 
 pool.on('error', (err) => console.error('Error inesperado en el pool de PostgreSQL:', err.message));
 
