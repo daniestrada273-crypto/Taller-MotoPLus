@@ -1,4 +1,3 @@
-
 # TallerMP - Sistema de Gestión de Taller Automotriz
 
 ## Bloque 1. Información general del proyecto
@@ -10,19 +9,30 @@ Sistema web *full-stack* para la digitalización y gestión del proceso de admis
 ### Integrantes
 
 - Daniela Michelle Vargas Estrada
-- [Nombre de la segunda integrante]
 
 ### Stack tecnológico y versiones
 
-| Elemento | Tecnología |
+| Elemento | Tecnología y versión |
 |---|---|
-| Backend | Node.js (v18+) y Express.js |
-| Base de datos | PostgreSQL (`Taller-MotorPlus-BD`) |
-| Controlador de BD | Node-postgres (`pg` v8.x) |
-| Frontend | HTML5, CSS3, Tailwind CSS y JavaScript nativo |
+| Backend | Node.js (v18.0 o superior) y Express.js (`express` ^4.x) |
+| Base de datos | PostgreSQL (v14 o superior, base de datos `Taller-MotorPlus-BD`) |
+| Controlador y entorno BD | Node-postgres (`pg` ^8.x), `cors` (^2.x) y `dotenv` (^16.x) |
+| Frontend | HTML5, CSS3, Tailwind CSS (v3 vía CDN) y JavaScript (ES6+) |
 | Entorno de desarrollo | Visual Studio Code |
 | Administración de BD | pgAdmin 4 |
 | Control de versiones | Git y GitHub |
+
+### Módulos del sistema
+
+| Módulo | Descripción | Roles |
+|---|---|---|
+| CU-01 Recepción | Registro de cliente, vehículo, inventario y orden de servicio. Genera el acceso del cliente. | Recepcionista, Administrador |
+| CU-02 Estatus | Consulta del estatus del vehículo por placas o folio. | Todos (el cliente solo ve su vehículo) |
+| CU-03 Bitácora | Registro de llamadas relacionadas con una orden. | Recepcionista, Administrador |
+| CU-04 Bahía | Cambio de fase del servicio y costo base del servicio (solo antes de Terminado). | Mecánico |
+| CU-05 Extras | Solicitud de trabajos adicionales y autorización del cliente. | Mecánico, Cliente, Recepción |
+| CU-06 Pagos | Cobro en efectivo con comprobante (mano de obra, refacciones, descuento y total). | Recepcionista, Administrador |
+| CU-07 Historial | Expediente de órdenes, extras y pagos por vehículo. | Recepcionista, Administrador |
 
 ### Estado de E1
 
@@ -34,123 +44,17 @@ Entrega 1 funcional con backend activo en Node.js, interfaz web responsiva, cone
 
 ### Requisitos previos
 
-- Node.js instalado.
-- PostgreSQL instalado.
-- pgAdmin 4.
-- Git instalado.
-- Visual Studio Code.
+- **Node.js:** v18.0.0 o superior (incluye `npm` v9+).
+- **Dependencias del backend:** `express` (^4.x), `pg` (^8.x), `cors` (^2.x) y `dotenv` (^16.x).
+- **Motor de base de datos:** PostgreSQL v14 o superior.
+- **Administrador de base de datos:** pgAdmin 4 (v7 o superior) o terminal `psql`.
+- **Herramientas de desarrollo:** Visual Studio Code y Git.
+- **Navegador web moderno:** Google Chrome, Microsoft Edge o Mozilla Firefox (con conexión a internet para cargar Tailwind CSS CDN).
 
 ### Pasos y comandos para la ejecución
 
 **1. Clonar el repositorio**
 
 ```bash
-git clone https://github.com/tu-usuario/Taller-MotoPlus.git
-cd Taller-MotoPlus
-```
-
-**2. Instalar las dependencias del backend**
-
-Ingresar a la carpeta del backend:
-
-```bash
-cd backend
-```
-
-Instalar las dependencias:
-
-```bash
-npm install
-```
-
-**3. Crear y preparar la base de datos**
-
-- Crear la base de datos `Taller-MotorPlus-BD` desde pgAdmin 4 o mediante la terminal de PostgreSQL.
-- Abrir la herramienta *Query Tool* de pgAdmin.
-- Abrir y ejecutar el archivo `schema.sql`, ubicado en la raíz del repositorio.
-- Verificar la creación de las tablas y sus relaciones.
-
-Tablas principales:
-
-- CLIENTE
-- VEHICULO
-- INVENTARIO_RECEPCION
-- ORDEN_SERVICIO
-
-**4. Configurar los parámetros de conexión**
-
-La configuración de conexión a PostgreSQL se encuentra definida directamente en el archivo `server.js`.
-
-Parámetros de conexión:
-
-- Host: `localhost`
-- Puerto: `5432`
-- Base de datos: `Taller-MotorPlus-BD`
-- Usuario: Usuario configurado en PostgreSQL.
-- Contraseña: Contraseña correspondiente al usuario.
-
-**5. Iniciar el servidor backend**
-
-Desde la carpeta `backend`, ejecutar:
-
-```bash
-node server.js
-```
-
-El servidor iniciará en el puerto local configurado, por ejemplo:
-
-```text
-http://localhost:3000
-```
-
----
-
-## Bloque 3. Demostración técnica y datos de prueba
-
-### Acceso a la aplicación
-
-1. Abrir el archivo `index.html` ubicado en la carpeta del frontend.
-2. También se puede utilizar la extensión *Live Server* de Visual Studio Code para visualizar la interfaz en el navegador.
-
-### Autenticación
-
-Ingresar al sistema utilizando las credenciales y los roles de prueba disponibles, por ejemplo:
-
-- Recepcionista.
-- Mecánico.
-
-### Carga e inserción de datos de prueba
-
-1. Completar el formulario de recepción vehicular con datos ficticios.
-2. Registrar la información del cliente:
-   - Nombre.
-   - Número de teléfono.
-3. Registrar la información del vehículo:
-   - Marca.
-   - Modelo.
-   - Placas.
-4. Introducir la descripción de la falla reportada.
-5. Hacer clic en el botón **Registrar Orden de Servicio** para enviar la petición HTTP POST al backend.
-
-### Comprobación de persistencia
-
-Para verificar que los datos fueron almacenados correctamente:
-
-1. Abrir pgAdmin 4.
-2. Conectarse a la base de datos `Taller-MotorPlus-BD`.
-3. Abrir *Query Tool*.
-4. Ejecutar la siguiente consulta SQL:
-
-```sql
-SELECT * FROM orden_servicio;
-```
-
-5. Comprobar que los registros enviados desde la interfaz web aparezcan correctamente en la base de datos.
-
----
-
-## Control de versiones
-
-El proyecto utiliza Git y GitHub para administrar el código fuente, registrar cambios y facilitar la colaboración entre los integrantes del equipo.
-
-La carpeta `node_modules/` se encuentra excluida del seguimiento de Git mediante el archivo `.gitignore`. Cada integrante puede instalar las dependencias localmente ejecutando `npm install` dentro de la carpeta `backend`.
+git clone [https://github.com/daniestrada273-crypto/Taller-MotoPLus.git](https://github.com/daniestrada273-crypto/Taller-MotoPLus.git)
+cd Taller-MotoPLus

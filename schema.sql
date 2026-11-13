@@ -3,8 +3,8 @@
 -- Actualizado conforme al Diagrama Entidad-Relación (ER)
 -- ==========================================================
 
-CREATE DATABASE taller_mp_db;
-\c taller_mp_db;
+CREATE DATABASE Taller-MotorPlus-BD;
+\c "Taller-MotorPlus-BD"
 
 -- 1. Tabla de Clientes
 CREATE TABLE IF NOT EXISTS CLIENTE (
